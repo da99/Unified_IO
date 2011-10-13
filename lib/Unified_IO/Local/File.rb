@@ -34,6 +34,10 @@ module Unified_IO
           named_demand! "Local file", address, :not_dir!
         end
 
+        def english_name
+          "Local file, #{address},"
+        end
+
         def content
           exists!
           Local::File.read address

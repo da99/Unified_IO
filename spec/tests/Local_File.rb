@@ -22,7 +22,7 @@ describe "Local::File :exist!" do
     lambda { 
       Unified_IO::Local::File.new("/xfile").exists!
     }.should.raise(Checked::Demand::Failed)
-    .message.should.match %r!Local file, "/xfile", must exist\.!
+    .message.should.match %r!Local file, .?/xfile.?, must exist\.!
   end
   
 
@@ -52,7 +52,7 @@ describe "Local::File :create a new file." do
     }
     .should.raise(Checked::Demand::Failed)
     .message
-    .should.be === "Local file, \"#{old}\", must not exist."
+    .should.match %r!Local file, .?#{old}.?, must not exist\.!
       
   end
   

@@ -10,6 +10,10 @@ module Unified_IO
 
         include ::Unified_IO::Base::File
 
+        def english_name
+          "Remote file, #{address},"
+        end
+
         def content
           exists!
           ssh.<<( :cat, address )

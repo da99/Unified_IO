@@ -19,7 +19,7 @@ describe "Remote::File :exist!" do
     lambda { 
      Unified_IO::Remote::File.new("/xfile").exists!
     }.should.raise(Checked::Demand::Failed)
-    .message.should.match %r!Far file, "/xfile", must exist\.!
+    .message.should.match %r!Remote file, .?/xfile.?, must exist\.!
   end
 
 end # === describe file!

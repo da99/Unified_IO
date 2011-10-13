@@ -11,10 +11,6 @@ module Unified_IO
       def initialize addr
         @address = begin
                      a = demand!(addr, :string!, :not_empty!)
-                     if self.class.name.split('::').last['Local_']
-                       a = ::File.expand_path(a)
-                     end
-
                      a
                    end
       end

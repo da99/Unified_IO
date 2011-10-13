@@ -17,13 +17,17 @@ module Unified_IO
 
         public # ==============================
 
-        def initialize *args
-          super
+        def initialize addr
+          super(::File.expand_path(addr))
           named_demand! 'Local file', self.address, :not_file!
         end
 
+        def english_name
+          "Local dir, #{address},"
+        end
+
         def exists?
-          Dir.exists?(address)
+          ::Dir.exists?(address)
         end
 
         def files 
