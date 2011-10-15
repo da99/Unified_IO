@@ -2,6 +2,7 @@
 require File.expand_path('spec/helper')
 require 'Unified_IO'
 require 'Bacon_Colored'
+require 'Bacon_FS'
 
 require 'rake/dsl_definition'
 require 'rake'
@@ -72,11 +73,25 @@ class Ghost_Box
   
 end # === class Ghost_Box
 
+FOLDER = BOX.tmp_dir
+FILE   = "#{FOLDER}/file.txt"
 BOX = Ghost_Box.new
 BOX.create_all
+BOX.shell %! mkdir -p #{FOLDER}!
+BOX.shell %! touch #{FILE} !
+
 at_exit {
   BOX.delete_all
 }
+
+
+MOCKERS = []
+
+def new_mock name
+  m = mock(name)
+  MOCKERS << m
+  m
+end
 
 def ssh *args, &blok
   m = MOCKERS.shift
@@ -88,13 +103,6 @@ def ssh *args, &blok
   end
 end
 
-def new_mock name
-  m = mock(name)
-  MOCKERS << m
-  m
-end
-
-MOCKERS = []
 
 
 Dir.glob('spec/tests/*.rb').each { |file|

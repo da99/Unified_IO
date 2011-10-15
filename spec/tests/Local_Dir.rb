@@ -16,6 +16,13 @@ describe "Local::Dir.new" do
     .message.should.match %r!Local file, "?#{path}"?, can't be a file.!
   end
   
+  it 'raises error if path has control chars' do
+    lambda { 
+      d = Unified_IO::Local::Dir.new("~\n/")
+    }.should.raise(Checked::Demand::Failed)
+    .message.should.match %r!whitepace!
+  end
+  
 end # === describe Local::Dir.new
 
 describe 'Local::Dir :exists!' do

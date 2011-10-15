@@ -6,13 +6,18 @@ module Unified_IO
 
       include Checked::Demand::DSL
 
+      private
+      attr_writer :address
+      
+      public
       attr_reader :address
 
       def initialize addr
-        @address = begin
-                     a = demand!(addr, :string!, :not_empty!)
+        self.address = begin
+                     a = demand!(addr, :file_address!)
                      a
                    end
+        (self.address = expand_path) if local?
       end
 
       def english_name
@@ -34,6 +39,15 @@ module Unified_IO
       def exists!
         demand! self, :exists!
         true
+      end
+
+
+      def expand_path
+        if local?
+          File.expand_path address
+        else
+          File.join(ssh.pwd, address)
+        end
       end
 
     end # === module File_System_Object

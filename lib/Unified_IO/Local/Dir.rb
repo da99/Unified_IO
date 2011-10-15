@@ -9,7 +9,7 @@ module Unified_IO
 
       module Base
 
-        include ::Unified_IO::Base::File_System_Object
+        include ::Unified_IO::Base::Local_FSO
         include Checked::Demand::DSL
 
         File_Not_Found = Class.new(RuntimeError)
@@ -77,7 +77,109 @@ module Unified_IO
           !!found
         end
 
+        def dot_slash *strs
+          source = caller[0].split(':').first
+          raise "File does not exist: #{source}" unless File.exists?(source)
+          expand_path( File.join File.dirname(source), *strs )
+        end
+        
+        def top_slash *strs
 
+          i = 0
+          current = dot_slash
+          target = nil
+          begin
+            if %w{ Gemfile lib spec }.detect { |dir| File.exists?(File.join current, dir) }
+              target = current
+            else
+              current = File.expand_path(File.join(current, '/..'))
+            end
+            i += 1
+          end while target.nil? && i < 4
+
+          raise "Top directory not found: #{File.expand_path('.')}" unless target
+
+          File.expand_path( File.join( target, *strs ) )
+        end
+        
+        # ======== File Reading
+
+        def require_all
+          prevent_remotely
+
+          names = []
+          list_files('*.rb').each { |file|
+            req = file.sub( /\.rb$/, '')
+            names << File.basename(req)
+            require req
+          }
+          names
+        end
+
+        def list_files glob = '*'
+          Dir.glob(File.join(address, glob)).select { |file|
+            File.file? file
+          }
+        end
+        
+        def ruby_class_names
+          list_files('*.rb').map { |file|
+            File.basename(file).sub(/\.rb$/, '' )
+          }
+        end
+        
+        # ======== Permissions
+        
+        def root_owner group = nil, args = '-R'
+          new_owner address, 'root', group, args
+        end
+
+        def world_readable args = '-R'
+          shell "sudo chmod #{args} a=r #{address}"
+          shell "sudo chmod #{args} a+X #{address}"
+        end
+        
+        def new_owner user, group = nil, args = '-R'
+          group ||= user
+          sh "sudo chown #{args} #{user}:#{group} #{address}"
+        end
+        
+        # ======== File Writing
+
+        def append_to_files msg
+          dir = address
+          list_files(dir).each { |file|
+            if File.file?(file)
+              append_to_file( file ) do |contents, io|
+                io.write msg
+              end
+            end
+          }
+        end
+
+        # For modes, see http://www.ruby-doc.org/core/classes/IO.html
+        def write_to_file pos = :top, raw_file, &blok
+          backup_file raw_file
+
+          file = File.expand_path(raw_file)
+          mode = case pos
+                 when :top
+                 when :bottom
+                 else
+                   raise "Position can only be :top or :bottom: #{pos.inspect}"
+                 end
+
+          contents = File.read(file)
+
+          File.open( file , "w") { |io|
+            io.write( "#{contents}\n" )if pos == :bottom
+            blok.call(contents, io)
+            io.write( "#{contents}" ) if pos == :top
+          }
+        end
+
+
+        
       end # === module Base
 
       include Base

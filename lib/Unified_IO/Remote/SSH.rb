@@ -71,9 +71,6 @@ module Unified_IO
       def silent
       end
 
-      def sudo
-      end
-
       def upload here, there
         SSH.connection.scp.upload!( temp_address, address )
       end
@@ -95,6 +92,17 @@ module Unified_IO
               end
 
         ssh cmd, *args, &blok
+      end
+
+      def expand_path raw_path
+        path = raw_path.strip
+
+        if path[%r!^/!]
+          return File.expand_path(path)
+        end
+
+        dir = bash_shell("pwd")
+        File.join(dir, path)
       end
 
     end # === module Base

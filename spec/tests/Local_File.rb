@@ -13,6 +13,13 @@ describe "Local::File.new" do
     Unified_IO::Local::File.new('~/.bashrc').address
     .should.be == File.expand_path('~/.bashrc')
   end
+  
+  it 'raises error if path has control chars' do
+    lambda { 
+      d = Unified_IO::Local::File.new("~/\t.bashrc")
+    }.should.raise(Checked::Demand::Failed)
+    .message.should.match %r!whitepace!
+  end
 
 end # === describe Local::File.new
 
@@ -80,6 +87,26 @@ end # === describe
 
 
 __END__
+
+describe ":append_to_file" do
+
+  it "should add text to the bottom of the file" do
+    bash_shell("mkdir -p #{FOLDER}")
+    txt  = "ad the bottom"
+    path = "#{FOLDER}/test.txt"
+
+    bash_shell("touch #{path}")
+    box = Box.new
+    rake_box { |bx|
+      bx.append_to_file(path) do | contents, f |
+        f.write txt
+      end
+    }
+
+    File.read(path)[/#{txt}$/].should.be == txt
+  end # === it
+
+end # ===  describe
 
 
 

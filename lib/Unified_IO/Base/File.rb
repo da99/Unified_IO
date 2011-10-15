@@ -28,7 +28,43 @@ module Unified_IO
         not_exists!
         yield demand!(neo, :file_content!)
       end
+      
+      def untar 
+        cmd = case address
+              when /\.tar$/
+                "tar -xvf #{address}"
+              when /\.tar.gz/
+                "tar -zxvf #{address}"
+              when /\.zip$/
+                "unzip #{address}"
+              else
+                raise "Unknown address type: #{address}"
+              end
+        
+        run cmd
+      end
+      
+      # For modes, see http://www.ruby-doc.org/core/classes/IO.html
+      def write_to_file pos = :top, raw_file, &blok
+        backup_file raw_file
 
+        file = File.expand_path(raw_file)
+        mode = case pos
+               when :top
+               when :bottom
+               else
+                 raise "Position can only be :top or :bottom: #{pos.inspect}"
+               end
+
+        contents = File.read(file)
+
+        File.open( file , "w") { |io|
+          io.write( "#{contents}\n" )if pos == :bottom
+          blok.call(contents, io)
+          io.write( "#{contents}" ) if pos == :top
+        }
+      end
+      
     end # === module File
     
   end # === module Base
