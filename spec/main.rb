@@ -73,11 +73,11 @@ class Ghost_Box
   
 end # === class Ghost_Box
 
-FOLDER = BOX.tmp_dir
-FILE   = "#{FOLDER}/file.txt"
 BOX = Ghost_Box.new
 BOX.create_all
-BOX.shell %! mkdir -p #{FOLDER}!
+
+FOLDER = BOX.tmp_dir
+FILE   = "#{FOLDER}/file.txt"
 BOX.shell %! touch #{FILE} !
 
 at_exit {

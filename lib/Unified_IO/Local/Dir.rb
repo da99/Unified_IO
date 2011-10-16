@@ -9,7 +9,7 @@ module Unified_IO
 
       module Base
 
-        include ::Unified_IO::Base::Local_FSO
+        include ::Unified_IO::Base::File_System_Object
         include Checked::Demand::DSL
 
         File_Not_Found = Class.new(RuntimeError)
@@ -18,7 +18,7 @@ module Unified_IO
         public # ==============================
 
         def initialize addr
-          super(::File.expand_path(addr))
+          super(::File.expand_path(demand! addr, :file_address!))
           named_demand! 'Local file', self.address, :not_file!
         end
 
@@ -157,26 +157,6 @@ module Unified_IO
           }
         end
 
-        # For modes, see http://www.ruby-doc.org/core/classes/IO.html
-        def write_to_file pos = :top, raw_file, &blok
-          backup_file raw_file
-
-          file = File.expand_path(raw_file)
-          mode = case pos
-                 when :top
-                 when :bottom
-                 else
-                   raise "Position can only be :top or :bottom: #{pos.inspect}"
-                 end
-
-          contents = File.read(file)
-
-          File.open( file , "w") { |io|
-            io.write( "#{contents}\n" )if pos == :bottom
-            blok.call(contents, io)
-            io.write( "#{contents}" ) if pos == :top
-          }
-        end
 
 
         

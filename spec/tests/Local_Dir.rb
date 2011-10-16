@@ -3,6 +3,12 @@ require 'Checked/Demand'
 
 describe "Local::Dir.new" do
   
+  before { @dir = Unified_IO::Local::Dir }
+
+  it 'must be true when asked local?' do
+    @dir.new('~/').local?.should.be == true  
+  end
+
   it 'must expand the path' do
     Unified_IO::Local::Dir.new('~/').address
     .should.be == ::File.expand_path('~/')
@@ -20,7 +26,7 @@ describe "Local::Dir.new" do
     lambda { 
       d = Unified_IO::Local::Dir.new("~\n/")
     }.should.raise(Checked::Demand::Failed)
-    .message.should.match %r!whitepace!
+    .message.should.match %r!invalid characters!
   end
   
 end # === describe Local::Dir.new

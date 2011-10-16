@@ -1,6 +1,10 @@
 
 describe "Remote::File.new" do
   
+  it 'must return true for remote?' do
+    Unified_IO::Remote::File.new('~/bashee').remote?.should.be == true
+  end
+  
   it 'must not expand the path' do
     Unified_IO::Remote::File.new('~/.bashrc').address
     .should.be == '~/.bashrc'

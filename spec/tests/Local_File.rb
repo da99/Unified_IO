@@ -1,6 +1,10 @@
 
 describe "Local::File.new" do
   
+  it 'must return true for local?' do
+    Unified_IO::Local::File.new('~/.bashrc').local?.should.be == true
+  end
+
   it 'must raise error if address is a directory' do
     addr = File.expand_path '~/'
     lambda { Unified_IO::Local::File.new('~/') }
@@ -18,7 +22,7 @@ describe "Local::File.new" do
     lambda { 
       d = Unified_IO::Local::File.new("~/\t.bashrc")
     }.should.raise(Checked::Demand::Failed)
-    .message.should.match %r!whitepace!
+    .message.should.match %r!invalid characters!
   end
 
 end # === describe Local::File.new
@@ -64,7 +68,7 @@ describe "Local::File :create a new file." do
   end
   
   it 'must create and write content.' do
-    addr = "/tmp/create_file_#{rand(999)}.txt}"
+    addr = "/tmp/create_file_#{rand(999)}.txt"
     msg = "new content #{rand(19999)}"
     
     Unified_IO::Local::File.new(addr).create msg

@@ -44,10 +44,27 @@ module Unified_IO
 
       def expand_path
         if local?
-          File.expand_path address
+          ::File.expand_path address
         else
-          File.join(ssh.pwd, address)
+          ::File.join(ssh.pwd, address)
         end
+      end
+      
+      def remote?
+        !local?
+      end
+      
+      def local?
+        @is_local ||= begin
+                        klass_name = self.class.name.to_s
+                        if klass_name['::Local::']
+                          true
+                        elsif klass_name['::Remote::']
+                          false
+                        else
+                          raise "Could not figure out location type: #{klass_name}"
+                        end
+                      end
       end
 
     end # === module File_System_Object

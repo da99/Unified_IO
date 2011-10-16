@@ -23,6 +23,7 @@ module Unified_IO
     module Class_Methods
 
       attr_accessor :connection
+      include ::Unified_IO::Base::Shell
 
       def new_do
         old = @do
