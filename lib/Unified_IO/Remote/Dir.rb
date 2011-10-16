@@ -2,27 +2,32 @@ require "Unified_IO/Base/File_System_Object"
 
 module Unified_IO
 
-  class Far_Dir
-
-    module Base
-      
-      include ::Unified_IO::Base::File_System_Object
-      
-      def exists?
-        found = false
-        ssh_connection.exec!("cd #{dir}") { |channel, stream, data|
-          if stream == :stdout
-            found = true
-          end 
-        }
-
-        found
-      end
-      
-    end # === module Base
+  module Remote
     
-    include Base
+    class Dir
+
+      module Base
+
+        include ::Unified_IO::Base::File_System_Object
+        include ::Unified_IO::Remote::SSH::DSL
+
+        def exists?
+          found = false
+          ssh_connection.exec!("cd #{dir}") { |channel, stream, data|
+            if stream == :stdout
+              found = true
+            end 
+          }
+
+          found
+        end
+
+      end # === module Base
+
+      include Base
+
+    end # === class Dir
     
-  end # === class Far_Dir
+  end # === module Remote
   
 end # === module Unified_IO

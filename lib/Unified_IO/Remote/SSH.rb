@@ -3,114 +3,195 @@ require 'net/scp'
 
 module Unified_IO
 
-  class SSH
+  module Remote
 
-    module DSL
+    class SSH
 
-      def ssh *args
-        run_it = !args.empty? || block_given?
-        return SSH if !run_it
-        raise "Not connected" if SSH.connected?
+      Failed = Class.new(RuntimeError)
 
-        v = SSH.new(*args)
-        return(yield(v)) if block_given?
+      module DSL
 
-        v
-      end
+        def ssh
+          SSH.new
+        end
+        
+        def ssh!
+          SSH
+        end
 
-    end # === module DSL
+      end # === module DSL
 
-    module Class_Methods
+      module Class_Methods
 
-      attr_accessor :connection
-      include ::Unified_IO::Base::Shell
+        attr_accessor :session
+        include ::Unified_IO::Base::Shell
+        include ::Unified_IO::Local::Shell::DSL
 
-      def new_do
-        old = @do
-        @do = new
-        yield
-        @do = old
-      end
+        def connection
+          session
+        end
 
-      def connect server
-        if self.connection
-          raise "
+        def connected?
+          !!@session
+        end
+
+        def connect server
+          if connected?
+            raise "
             Connection already established.
             Can not open another connection. 
           ".split.join
+          end
+
+          net_hash = Hash[:port=>server.port]
+          (net_hash[:password] = server.password) if server.password
+
+          begin
+            new_session = Net::SSH.start(server.ip, server.login, net_hash) 
+
+            at_exit {
+              new_session.close
+            }
+
+            @session = new_session
+
+          rescue Net::SSH::AuthenticationFailed => e
+            shell.yell( "Using: " + [server.ip, server.login, net_hash].inspect )
+            raise e
+          end
         end
 
-        net_hash = Hash[:port=>server.port]
-        (net_hash[:password] = server.password) if server.password
+        def run *args, &blok
+          SSH.new.run( *args, &blok )
+        end
 
-        begin
-          Net::SSH.start(server.ip, server.login, net_hash) do |ssh_connection|
+      end # === module Class_Methods
 
-            self.connection = ssh_connection
-            yield
-            self.connection = nil
+      module Base
+
+        include Checked::Clean::DSL
+        include Checked::Demand::DSL
+        include ::Unified_IO::Local::Shell::DSL
+        
+        attr_reader :address
+        def initialize raw_addr = nil
+          @exits = [0]
+          @pty   = false
+          if raw_addr
+            @address = demand!(raw_addr, :file_address!)
+          end
+        end
+
+        def upload raw_here, there
+          here = demand!(raw_here, :file_address!)
+          raise "File does not exists: #{here}" if !::File.exists?(here)
+          SSH.session.scp.upload!( here, expand_path(there) )
+        end
+
+        def download remote, raw_local
+          local = demand!(raw_local, :file_address!)
+          raise "File exists: #{local}" if ::File.exists?(local)
+          SSH.session.scp.download!( expand_path(remote), local )
+        end
+
+        def pty
+          @pty = true
+          self
+        end
+
+        def pty?
+          @pty
+        end
+
+        def run raw
+          raise "No block allowed." if block_given?
+
+          cmd = clean(raw, :shell)
+          str = ''
+      
+          if address
+            cmd = "cd #{address} && #{cmd}"
+          end
+          
+          new_channel = SSH.session.open_channel do |channel|
+
+            if pty?
+              channel.request_pty do |ch, success|
+                raise(Failed, "PTY could not be obtained.") unless success
+              end
+            end
+
+            channel.on_request( "exit-status" ) { |ch2, data|
+              ch2[:status] = data.read_long.to_i
+            }
+
+            channel.on_data { |ch2, data|
+              str << data
+              shell.puts( data )
+
+              if data['Is this ok [y/N]'] || data[%r!\[Y/n\]!i]
+                STDOUT.flush  
+                ch2.send_data( STDIN.gets.chomp + "\n" )
+              end
+            }
+
+            channel.on_extended_data { |ch2, type, data|
+              raise Failed, "TYPE: #{type}, DATA: #{data}"
+            }
+
+            channel.exec("[ -f ~/.bash_profile ] && source ~/.bash_profile; " + cmd) { |ch2, success|
+              raise( Failed, "COMMAND: #{cmd}" ) unless success
+            }
 
           end
-        rescue Net::SSH::AuthenticationFailed => e
-          shell.yell( "Connection using: " + [server.ip, server.login, net_hash].inspect )
-          raise e
-        end
-      end
 
-    end # === module Class_Methods
+          new_channel.wait
 
-    module Base
-
-      attr_reader :server
-      def initialize new_server
-        @server = new_server
-      end
-
-      def exits
-      end
-
-      def silent
-      end
-
-      def upload here, there
-        SSH.connection.scp.upload!( temp_address, address )
-      end
-
-      def run
-      end
-
-      def sudo str, *args, &blok
-        return str if root_login?
-
-        cmd = begin
-                str
-                .strip
-                .split("\n")
-                .map(&:strip)
-                .reject(&:empty?)
-                .map { |line| "sudo #{line}" }
-                .join("\n")
-              end
-
-        ssh cmd, *args, &blok
-      end
-
-      def expand_path raw_path
-        path = raw_path.strip
-
-        if path[%r!^/!]
-          return File.expand_path(path)
+          if not @exits.include?(new_channel[:status])
+            raise Failed, "EXIT STATUS: #{new_channel[:status]}"
+          end
+          
+          str
         end
 
-        dir = bash_shell("pwd")
-        File.join(dir, path)
-      end
+        def sudo str, *args, &blok
+          return str if root_login?
 
-    end # === module Base
+          cmd = begin
+                  str
+                  .strip
+                  .split("\n")
+                  .map(&:strip)
+                  .reject(&:empty?)
+                  .map { |line| "sudo #{line}" }
+                  .join("\n")
+                end
 
-    include Base
-    extend Class_Methods
+          ssh cmd, *args, &blok
+        end
 
-  end # === class SSH
+        def expand_path raw
+          addr = demand!(raw, :file_address!)
+          return addr if not address
+          return addr if addr[%r!^[\/\~]! ]
+          File.join(address, addr)
+        end
+
+        def exits *raw
+          raw.flatten.each { |s| 
+            i = Integer(s)
+            (@exits << i) unless @exits.include?(i)
+          }
+          self
+        end
+
+      end # === module Base
+
+      include Base
+      extend Class_Methods
+
+    end # === class SSH
+
+  end # === module Remote
 
 end # === module Unified_IO

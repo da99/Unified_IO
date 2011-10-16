@@ -11,7 +11,7 @@ module Unified_IO
       include Checked::Demand::DSL
 
       def temp_address
-        @temp_address ||= "tmp/#{address.gsub('/',',')}.#{Time.now.to_s}"
+        @temp_address ||= "/tmp/#{address.gsub('/',',')}.#{Time.now.strftime('%F.%H.%M.%S')}"
       end
 
       def content_same_as? raw

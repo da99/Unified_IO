@@ -26,8 +26,9 @@ module Unified_IO
 
       module Base
 
-        include ::Unified_IO::Base::File
         include Checked::Demand::DSL
+        include ::Unified_IO::Base::File
+        include ::Unified_IO::Local::Shell::DSL
 
         def initialize addr
           super(::File.expand_path(addr))
@@ -50,8 +51,8 @@ module Unified_IO
         def create raw
           super(raw) {
             ::File.open(address, 'w') { |io| 
-            io.write demand!(raw, :file_content!)
-          }
+              io.write demand!(raw, :file_content!)
+            }
           }
         end
 

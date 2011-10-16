@@ -41,10 +41,15 @@ class Ghost_Box
     
     def create_dir dir
       shell "mkdir -p #{path dir}"
+      path dir
     end
     
-    def create_file name
-      shell "touch #{path name}"
+    def create_file name, content = 'No content.'
+      File.open(path(name), 'w') { |io|
+        io.write content
+      }
+      
+      path name
     end
     
     def create_random_file
@@ -92,17 +97,22 @@ def new_mock name
   MOCKERS << m
   m
 end
+# 
+# def ssh *args, &blok
+#   m = MOCKERS.shift
+#   raise "No mocks left." unless m
+#   if !args.empty? || blok
+#     m.send(:as_method, *args, &blok)
+#   else
+#     m
+#   end
+# end
 
-def ssh *args, &blok
-  m = MOCKERS.shift
-  raise "No mocks left." unless m
-  if !args.empty? || blok
-    m.send(:as_method, *args, &blok)
-  else
-    m
-  end
-end
-
+localhost = Unified_IO::Server.new(
+  :hostname=>'localhost', 
+  :user=>File.basename(File.expand_path '~/')
+) 
+Unified_IO::Remote::SSH.connect( localhost )
 
 
 Dir.glob('spec/tests/*.rb').each { |file|

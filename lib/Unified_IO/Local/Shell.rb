@@ -9,22 +9,36 @@ module Unified_IO
 
       module DSL
 
-        def shell raw_cmd = :none
-          case cmd 
-          when :none
-            Shell.new
-          else
-            Shell.new.run raw_cmd
-          end
+        def shell
+          Shell.new
+        end
+
+        def shell!
+          Shell
         end
 
       end # === module DSL
+      
+      module Class_Methods
+        
+        def run *args
+          new.run *args
+        end
+        
+      end # === module Class_Methods
 
       module Base
 
         include ::Unified_IO::Base::Shell
         include Term::ANSIColor
         include Checked::Clean::DSL
+        include Checked::Demand::DSL
+
+        attr_reader :address
+        def initialize raw_addr = '.'
+          addr = demand!(raw_addr, :file_address!)
+          @address = ::File.expand_path(addr)
+        end
 
         def run raw, &blok
 
@@ -35,7 +49,7 @@ module Unified_IO
 
           single_line = clean(raw, :shell)
           tell single_line
-          cmd = "cd #{::File.expand_path('.')} && #{single_line}  "
+          cmd = "cd #{address} && #{single_line}  "
           bash = if @bash_ver_num == 3
               %! sudo -u $USER -i %s 2>&1 ! % cmd.gsub('"', "'").gsub('&', "\\&")
                  elsif @bash_ver_num >= 4
@@ -101,6 +115,7 @@ module Unified_IO
       end # === module Base
 
       include Base
+      extend Class_Methods
 
     end # === class Shell
   end # === module Local

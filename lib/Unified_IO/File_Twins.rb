@@ -10,53 +10,55 @@ module Unified_IO
 
     module Base
       
-      attr_reader :local, :far
+      include ::Unified_IO::Local::Shell::DSL
+      include ::Unified_IO::Remote::SSH::DSL
+      attr_reader :local, :remote
 
-      def initialize local_addr, far_addr
+      def initialize local_addr, remote_addr
         @local   = Local::File.new(local_addr)
-        @far     = Far::File.new(far_addr)
+        @remote  = Remote::File.new(remote_addr)
       end
 
       def uploaded?
-        return false if not far.exists?
+        return false if not remote.exists?
         local.exists!
-        local.content_same_as? far.content
+        local.content_same_as? remote.content
       end
       
       def downloaded?
         return false if not local.exists?
-        far.exists!
-        local.content_same_as? far.content
+        remote.exists!
+        local.content_same_as? remote.content
       end
 
       def upload 
         if uploaded?
-          notify(
-            "File already uploaded [from] [to]:", local.address, far.address
-          )
-          return false
-        end
-        
-        tell(
-          "Uploading [from] [to]:", local.address, far.address
-        )
-
-        far.create local.content
-      end # === def upload      
-      
-      def download
-        if downloaded?
           shell.notify(
-            "File downloaded [from] [to]:", far.address, local.address
+            "File already uploaded [from] [to]:", local.address, remote.address
           )
           return false
         end
         
         shell.tell(
-          "Downloading [from] [to]:", far.address, local.address
+          "Uploading [from] [to]:", local.address, remote.address
         )
 
-        local.create far.content
+        remote.create local.content
+      end # === def upload      
+      
+      def download
+        if downloaded?
+          shell.notify(
+            "File downloaded [from] [to]:", remote.address, local.address
+          )
+          return false
+        end
+        
+        shell.tell(
+          "Downloading [from] [to]:", remote.address, local.address
+        )
+
+        local.create remote.content
       end
     end # === module Base
     

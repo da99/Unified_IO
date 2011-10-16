@@ -9,6 +9,7 @@ module Unified_IO
       module Base
 
         include ::Unified_IO::Base::File
+        include ::Unified_IO::Remote::SSH::DSL
 
         def english_name
           "Remote file, #{address},"
@@ -16,18 +17,18 @@ module Unified_IO
 
         def content
           exists!
-          ssh.<<( :cat, address )
+          ssh.run "cat #{address}"
         end
 
         def exists?
-          raw = ssh( %~ [[ -f #{address} ]] && echo 'ok' ~, :exits => [0,1] )
+          raw = ssh.exits(0,1).run( %~ [[ -f #{address} ]] && echo 'ok' ~ )
           raw.strip == 'ok'
         end
 
         def create raw
-          super() {
+          super(raw) { |neo|
             t = Local::File.new(temp_address)
-            t.create raw
+            t.create neo
 
             # From: http://stackoverflow.com/questions/5310063/ruby-netscp-and-custom-ports
             results = ssh.upload( temp_address, address )

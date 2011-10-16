@@ -9,8 +9,9 @@ module Unified_IO
 
       module Base
 
-        include ::Unified_IO::Base::File_System_Object
         include Checked::Demand::DSL
+        include ::Unified_IO::Base::File_System_Object
+        include ::Unified_IO::Local::Shell::DSL
 
         File_Not_Found = Class.new(RuntimeError)
         Too_Many_Files = Class.new(RuntimeError)

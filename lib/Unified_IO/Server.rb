@@ -47,6 +47,8 @@ module Unified_IO
       end
       
       @ip ||= @hostname
+			@user ||= @login
+			@login ||= @user
 
       case gang
         when 'app', 'db'
