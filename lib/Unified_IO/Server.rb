@@ -4,6 +4,8 @@ module Unified_IO
   
   class Server
     
+    Invalid_Property = Class.new(RuntimeError)
+
     PROPS = [
       :ip, :port, :hostname, 
       :group,
@@ -49,12 +51,12 @@ module Unified_IO
       
       @port ||= '22'
       if !group
-        raise "Group must be set for server #{hostname}."
+        raise Invalid_Property, "Group must be set for server #{hostname}."
       end
       @group = group.to_s.strip
       
       if !hostname.is_a?(String)
-        raise "Invalid hostname: #{hostname.inspect}"
+        raise Invalid_Property, "Invalid hostname: #{hostname.inspect}"
       end
       
       @ip    ||= @hostname

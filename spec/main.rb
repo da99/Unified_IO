@@ -110,6 +110,7 @@ end
 
 localhost = Unified_IO::Server.new(
   :hostname=>'localhost', 
+  :group => 'None',
   :user=>File.basename(File.expand_path '~/')
 ) 
 Unified_IO::Remote::SSH.connect( localhost )
