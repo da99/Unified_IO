@@ -60,6 +60,10 @@ module Unified_IO
             raise e
           end
         end
+        
+        def disconnect
+          connection.close if connected?
+        end
 
         def run *args, &blok
           SSH.new.run( *args, &blok )

@@ -6,7 +6,7 @@ module Unified_IO
     
     PROPS = [
       :ip, :port, :hostname, 
-      :gang, :club,
+      :group,
       :user, :default, 
       :login, :root, :password
     ]
@@ -32,31 +32,35 @@ module Unified_IO
         raise ":password can't be set as empty string."
       end
       
+      if hash[:root]
+        hash[:login] = 'root'
+        hash.delete :root
+      end
+      
+      if ENV['PASSWORD']
+        hash[:password] = ENV['PASSWORD']
+        hash[:login] = 'root'
+      end
+
       @origin = hash
       origin.keys.each { |key|
         instance_variable_set :"@#{key}", origin[key]
       }
       
       @port ||= '22'
-      @gang ||= 'app'
-      @gang = @gang.to_s
-      (@club = @club.to_s) if @club
+      if !group
+        raise "Group must be set for server #{hostname}."
+      end
+      @group = group.to_s.strip
       
       if !hostname.is_a?(String)
         raise "Invalid hostname: #{hostname.inspect}"
       end
       
-      @ip ||= @hostname
-			@user ||= @login
-			@login ||= @user
+      @ip    ||= @hostname
+      @user  ||= @login
+      @login ||= @user
 
-      case gang
-        when 'app', 'db'
-          # Do nothing.
-        else
-          raise "Unknown server gang (e.g. app, db): #{gang.inspect}"
-      end
-      
     end # === def initialize
     
   end # === class Server
