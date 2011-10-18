@@ -48,8 +48,8 @@ module Unified_IO
                             end
 
           single_line = clean(raw, :shell)
-          tell single_line
           cmd = "cd #{address} && #{single_line}  "
+          tell cmd
           bash = if @bash_ver_num == 3
               %! sudo -u $USER -i %s 2>&1 ! % cmd.gsub('"', "'").gsub('&', "\\&")
                  elsif @bash_ver_num >= 4

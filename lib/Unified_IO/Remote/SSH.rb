@@ -46,6 +46,7 @@ module Unified_IO
           net_hash = Hash[:port=>server.port]
           (net_hash[:password] = server.password) if server.password
 
+          net_hash[:timeout] = 5
           begin
             new_session = Net::SSH.start(server.ip, server.login, net_hash) 
 
