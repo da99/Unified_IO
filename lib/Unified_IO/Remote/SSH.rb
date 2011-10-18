@@ -38,9 +38,9 @@ module Unified_IO
         def connect server
           if connected?
             raise "
-            Connection already established.
-            Can not open another connection. 
-          ".split.join
+              Connection already established.
+              Can not open another connection. 
+            ".split.join(" ")
           end
 
           net_hash = Hash[:port=>server.port]
@@ -156,7 +156,7 @@ module Unified_IO
             raise Failed, "EXIT STATUS: #{new_channel[:status]}"
           end
           
-          str
+          str.strip
         end
 
         def sudo str, *args, &blok
