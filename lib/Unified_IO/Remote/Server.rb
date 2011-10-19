@@ -29,8 +29,8 @@ module Unified_IO
                if ::File.file?(file_or_hash)
                  eval(::File.read file_or_hash )
                else
-                 base = eval(File.read 'configs/base.rb' )
-                 server = base.merge( eval(File.read "configs/server/#{file_or_hash}/config.rb") )
+                 base = eval(::File.read 'configs/base.rb' )
+                 server = base.merge( eval(::File.read "configs/server/#{file_or_hash}/config.rb") )
                  server[:hostname] = file_or_hash
                  if opts[:root]
                    server[:root] = true
