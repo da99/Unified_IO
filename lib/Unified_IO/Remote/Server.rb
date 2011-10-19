@@ -2,6 +2,7 @@
 
 module Unified_IO
   
+  module Remote
   class Server
     
     Invalid_Property = Class.new(RuntimeError)
@@ -16,13 +17,27 @@ module Unified_IO
     attr_reader :origin, *PROPS
     attr_accessor :os_name
 
-    def initialize file_or_hash
+    def initialize file_or_hash, opts = {}
       
       hash = case file_or_hash
-             when String
-               eval(::File.read file_or_hash )
+              
              when Hash
                file_or_hash
+              
+             when String
+              
+               if ::File.file?(file_or_hash)
+                 eval(::File.read file_or_hash )
+               else
+                 base = eval(File.read 'configs/base.rb' )
+                 server = base.merge( eval(File.read "configs/server/#{file_or_hash}/config.rb") )
+                 server[:hostname] = file_or_hash
+                 if opts[:root]
+                   server[:root] = true
+                 end
+                
+                 server
+               end
              else
                raise "Unknown data type: #{file_or_hash.inspect}"
              end
@@ -66,5 +81,6 @@ module Unified_IO
     end # === def initialize
     
   end # === class Server
+  end # === module Remote
   
 end # === module Unified_IO

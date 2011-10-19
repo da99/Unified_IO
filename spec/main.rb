@@ -108,7 +108,7 @@ end
 #   end
 # end
 
-localhost = Unified_IO::Server.new(
+localhost = Unified_IO::Remote::Server.new(
   :hostname=>'localhost', 
   :group => 'None',
   :user=>File.basename(File.expand_path '~/')
