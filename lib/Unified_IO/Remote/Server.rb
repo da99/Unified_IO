@@ -43,10 +43,10 @@ module Unified_IO
              end
 
       invalid = hash.keys - PROPS
-      raise "Invalid keys: #{invalid.inspect}" unless invalid.empty?
+      raise Invalid_Property, "Invalid keys: #{invalid.inspect}" unless invalid.empty?
 
       if hash.has_key?(:password) && hash[:password].strip.empty?
-        raise ":password can't be set as empty string."
+        raise Invalid_Property, ":password can't be set as empty string."
       end
       
       if hash[:root]
