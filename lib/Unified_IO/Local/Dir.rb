@@ -36,11 +36,11 @@ module Unified_IO
         end
 
         def visibles
-          Local::File.filter Dir.glob(::File.join( address, '*' ))
+          Local::File.filter ::Dir.glob(::File.join( address, '*' ))
         end
 
         def hiddens
-          Local::File.filter Dir.glob(::File.join( address, '.*' ), ::File::FNM_DOTMATCH)
+          Local::File.filter ::Dir.glob(::File.join( address, '.*' ), ::File::FNM_DOTMATCH)
         end 
 
         def content? str

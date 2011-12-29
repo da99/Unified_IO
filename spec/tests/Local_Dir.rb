@@ -49,3 +49,15 @@ describe "Local::Dir :exists?" do
   end
 
 end # === describe Detecting a dir:
+
+describe "Local::Dir :files" do
+  
+  it 'must include hidden and visible files' do
+    files        = Unified_IO::Local::Dir.new('~/').files.map(&:address)
+    path         = File.expand_path('~/*')
+    target       = (Dir.glob( path ) + Dir.glob( path, File::FNM_DOTMATCH)).select { |file| File.file?(file) }
+    
+    files.should == target
+  end
+  
+end # === describe Local::Dir :files

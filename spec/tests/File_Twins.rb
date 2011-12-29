@@ -36,7 +36,7 @@ describe "File_Twins :upload" do
   behaves_like 'File Twins'
   
   it 'uploads a local file to server' do
-    local = BOX.create_file "Twins/Local/local.txt", 'Local content'
+    local = BOX.create_file("Twins/Local/local.txt", 'Local content')
     remote = BOX.path('Twins/Remote/uploaded.txt')
     twin = @twins.new(local, remote)
     twin.upload

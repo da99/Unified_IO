@@ -6,7 +6,6 @@ require 'Bacon_FS'
 
 require 'rake/dsl_definition'
 require 'rake'
-require "Bacon_Colored"
 require "mocha-on-bacon"
 
 class Ghost_Box
