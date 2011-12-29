@@ -32,7 +32,8 @@ module Unified_IO
         end
 
         def connected?
-          !!@session
+          return false if !@session
+          return !@session.closed?
         end
 
         def connect server
@@ -49,9 +50,9 @@ module Unified_IO
           net_hash[:timeout] = 5
           begin
             new_session = Net::SSH.start(server.ip, server.login, net_hash) 
-
+            
             at_exit {
-              new_session.close
+              new_session.close unless new_session.closed?
             }
 
             @session = new_session
@@ -64,6 +65,8 @@ module Unified_IO
         
         def disconnect
           connection.close if connected?
+          @session = nil
+          true
         end
 
         def run *args, &blok

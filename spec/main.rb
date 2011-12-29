@@ -71,6 +71,10 @@ class Ghost_Box
       end
     end
     
+    def bundle cmd
+      `bundle exec #{cmd} 2>&1`.strip
+    end
+    
   end # === module Base
   
   include Base
