@@ -119,7 +119,7 @@ module Unified_IO
           @pty
         end
 
-        def run raw, verbose = false
+        def run raw
           raise "No block allowed." if block_given?
           raise(Not_Connected, raw) unless SSH.connected?
 
@@ -144,7 +144,7 @@ module Unified_IO
 
             channel.on_data { |ch2, data|
               str << data
-              shell.puts( data ) if verbose
+              shell.response( data )
 
               if data['Is this ok [y/N]'] || data[%r!\[Y/n\]!i]
                 STDOUT.flush  

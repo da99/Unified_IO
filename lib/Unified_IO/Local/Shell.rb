@@ -24,6 +24,19 @@ module Unified_IO
         def run *args
           new.run *args
         end
+				
+				def quiet?
+					return false unless defined?(@quiet)
+					@quiet
+				end
+
+				def quiet
+					@quiet = true
+				end
+
+				def loud
+					@quiet = false
+				end
         
       end # === module Class_Methods
 
@@ -86,6 +99,13 @@ module Unified_IO
         def notify msg
           colored_puts :yellow, *msgs
         end
+				
+        # 
+        # Completely same as :notify.
+        #
+				def warn msg
+					notify msg
+				end
 
         # 
         # Tell user what you are doing.
@@ -106,9 +126,14 @@ module Unified_IO
             puts send( color, str.to_s )
           }
         end
+				
+				def response *msgs
+					colored_puts :white, *msgs
+				end
         
+				private # ====================================== 
         def puts *args
-          return if quiet?
+          return if quiet? || Shell.quiet?
           super 
         end
 

@@ -1,4 +1,5 @@
 require 'Unified_IO'
+Unified_IO::Local::Shell.quiet
 
 localhost = Unified_IO::Remote::Server.new(
   :hostname=>`hostname`.strip, 
@@ -19,8 +20,3 @@ class << Unified_IO::Remote::SSH.connection
 end
 
 
-# at_exit {
-#   puts("closed") if Unified_IO::Remote::SSH.connection.closed?
-# }
-#  at_exit { puts '1' }
-#  at_exit { puts '2' }

@@ -8,6 +8,8 @@ require 'rake/dsl_definition'
 require 'rake'
 require "mocha-on-bacon"
 
+Unified_IO::Local::Shell.quiet
+
 class Ghost_Box
 
   module DSL

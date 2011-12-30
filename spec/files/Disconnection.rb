@@ -1,5 +1,6 @@
 
 require 'Unified_IO'
+Unified_IO::Local::Shell.quiet
 
 ssh = Unified_IO::Remote::SSH
 puts "same" if !!ssh.connection === ssh.connected?

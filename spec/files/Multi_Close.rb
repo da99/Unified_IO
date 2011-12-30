@@ -1,4 +1,5 @@
 require 'Unified_IO'
+Unified_IO::Local::Shell.quiet
 
 localhost = Unified_IO::Remote::Server.new(
   :hostname=>`hostname`.strip, 
