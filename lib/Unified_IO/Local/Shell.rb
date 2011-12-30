@@ -30,7 +30,15 @@ module Unified_IO
 					@quiet
 				end
 
-				def quiet
+				def quiet &blok
+					if block_given?
+						was_quiet = quiet?
+						@quiet = true
+						yield
+						was_quiet ? quiet : loud 
+						return quiet?
+					end
+					
 					@quiet = true
 				end
 

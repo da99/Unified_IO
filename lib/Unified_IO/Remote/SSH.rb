@@ -144,7 +144,9 @@ module Unified_IO
 
             channel.on_data { |ch2, data|
               str << data
-              shell.response( data )
+              Unified_IO::Local::Shell.quiet {
+                shell.response( data )
+              }
 
               if data['Is this ok [y/N]'] || data[%r!\[Y/n\]!i]
                 STDOUT.flush  
