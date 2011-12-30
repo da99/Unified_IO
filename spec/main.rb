@@ -72,7 +72,10 @@ class Ghost_Box
     end
     
     def bundle cmd
-      `bundle exec #{cmd} 2>&1`.strip
+			require 'open3'
+			Open3.popen3(" bundle exec #{cmd} ") { |i, o, e|
+				[o.readlines, e.readlines].compact.join(' ').strip
+			}
     end
     
   end # === module Base
@@ -100,23 +103,24 @@ def new_mock name
   MOCKERS << m
   m
 end
-# 
-# def ssh *args, &blok
-#   m = MOCKERS.shift
-#   raise "No mocks left." unless m
-#   if !args.empty? || blok
-#     m.send(:as_method, *args, &blok)
-#   else
-#     m
-#   end
-# end
 
-localhost = Unified_IO::Remote::Server.new(
-  :hostname=>'localhost', 
-  :group => 'None',
-  :user=>File.basename(File.expand_path '~/')
-) 
-Unified_IO::Remote::SSH.connect( localhost )
+shared 'SSH to local' do
+	before do
+		@connect = lambda {
+
+			bdrm = Unified_IO::Remote::Server.new(
+				:hostname=> `hostname`.strip,
+				:group => 'None',
+				:user=>File.basename(File.expand_path '~/')
+			) 
+			Unified_IO::Remote::SSH.connect( bdrm )
+		}
+	end
+	
+			
+	after { Unified_IO::Remote::SSH.disconnect }
+end
+
 
 
 Dir.glob('spec/tests/*.rb').each { |file|

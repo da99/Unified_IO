@@ -7,7 +7,9 @@ module Unified_IO
 
     class SSH
 
-      Failed = Class.new(RuntimeError)
+      Not_Connected = Class.new(RuntimeError)
+      Failed        = Class.new(RuntimeError)
+      Wrong_IP      = Class.new(RuntimeError)
 
       module DSL
 
@@ -61,6 +63,12 @@ module Unified_IO
             shell.yell( "Using: " + [server.ip, server.login, net_hash].inspect )
             raise e
           end
+          
+          hostname = run('hostname')
+          hostname = run('hostname')
+          if hostname != server.hostname
+            raise Wrong_IP, "HOSTNAME: #{hostname}, TARGET: #{server.hostname}, IP: #{server.ip}"
+          end 
         end
         
         def disconnect
@@ -111,8 +119,9 @@ module Unified_IO
           @pty
         end
 
-        def run raw
+        def run raw, verbose = false
           raise "No block allowed." if block_given?
+          raise(Not_Connected, raw) unless SSH.connected?
 
           cmd = clean(raw, :shell)
           str = ''
@@ -135,7 +144,7 @@ module Unified_IO
 
             channel.on_data { |ch2, data|
               str << data
-              shell.puts( data )
+              shell.puts( data ) if verbose
 
               if data['Is this ok [y/N]'] || data[%r!\[Y/n\]!i]
                 STDOUT.flush  

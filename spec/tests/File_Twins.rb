@@ -4,7 +4,10 @@ BOX.create_dir  "Twins/Local"
 BOX.create_dir  "Twins/Remote"
 
 shared 'File Twins' do
+	behaves_like 'SSH to local'
+
   before {
+		@connect.call
     @twins = Unified_IO::File_Twins
     @local_dir  = BOX.path("Twins/Local")
     @local_file = BOX.path("Twins/Local/local.txt")

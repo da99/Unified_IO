@@ -1,7 +1,10 @@
 
 describe "Remote SSH" do
   
+  behaves_like 'SSH to local'
+
   it "strips returned String" do
+    @connect.call
     Unified_IO::Remote::SSH.new.run("uptime").should == `uptime`.strip
   end
   
@@ -19,6 +22,21 @@ describe "Remote SSH" do
   
   it "can open a new connection after closing an old one." do
     BOX.bundle("ruby spec/files/Multi_Open.rb").strip.should == "opened/closed all"
+  end
+  
+  it "raises Wrong_IP when hostnames do not match" do
+		Unified_IO::Remote::SSH.disconnect
+    
+    lambda {
+      # BIN("localhost uptime")
+      localhost = Unified_IO::Remote::Server.new(
+        :hostname=>'localhost',
+        :group=>'App',
+        :user=>`whoami`.strip
+      )
+      Unified_IO::Remote::SSH.connect(localhost)
+    }.should.raise(Unified_IO::Remote::SSH::Wrong_IP)
+    .message.match %r!HOSTNAME: localhost, TARGET: #{`hostname`.strip}!
   end
   
 end # === describe Remote SSH
