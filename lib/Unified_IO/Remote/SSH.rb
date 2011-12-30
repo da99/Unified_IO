@@ -67,9 +67,11 @@ module Unified_IO
           hostname = Unified_IO::Local::Shell.quiet do
             run('hostname')
           end
-          if hostname != server.hostname && !::File.exists?("/tmp/skip_ip_check.txt")
-            raise Wrong_IP, "HOSTNAME: #{hostname}, TARGET: #{server.hostname}, IP: #{server.ip}"
-          end 
+          unless ENV['SKIP_IP_CHECK']
+            if hostname != server.hostname 
+              raise Wrong_IP, "HOSTNAME: #{hostname}, TARGET: #{server.hostname}, IP: #{server.ip}"
+            end 
+          end
         end
         
         def disconnect

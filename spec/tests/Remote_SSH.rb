@@ -39,10 +39,9 @@ describe "Remote SSH" do
     .message.match %r!HOSTNAME: localhost, TARGET: #{`hostname`.strip}!
   end
   
-  it 'bypasses Wrong_IP check if file /tmp/skip_ip_check.txt exists.' do
+  it 'bypasses Wrong_IP check if ENV["SKIP_IP_CHECK"] exists.' do
     begin
-      file = "/tmp/skip_ip_check.txt"
-      `touch #{file}`
+      ENV['SKIP_IP_CHECK'] = 'true'
       
       lambda {
       localhost = Unified_IO::Remote::Server.new(
@@ -53,7 +52,7 @@ describe "Remote SSH" do
       Unified_IO::Remote::SSH.connect(localhost)
       }.should.not.raise(Unified_IO::Remote::SSH::Wrong_IP)
     ensure
-      `rm #{file}` if File.exists?(file)
+      ENV.delete 'SKIP_IP_CHECK'
     end
   end
   
