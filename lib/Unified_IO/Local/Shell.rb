@@ -34,9 +34,9 @@ module Unified_IO
 					if block_given?
 						was_quiet = quiet?
 						@quiet = true
-						yield
+						results = yield
 						was_quiet ? quiet : loud 
-						return quiet?
+						return results
 					end
 					
 					@quiet = true

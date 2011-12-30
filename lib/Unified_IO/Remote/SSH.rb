@@ -64,9 +64,10 @@ module Unified_IO
             raise e
           end
           
-          hostname = run('hostname')
-          hostname = run('hostname')
-          if hostname != server.hostname
+          hostname = Unified_IO::Local::Shell.quiet do
+            run('hostname')
+          end
+          if hostname != server.hostname && !::File.exists?("/tmp/skip_ip_check.txt")
             raise Wrong_IP, "HOSTNAME: #{hostname}, TARGET: #{server.hostname}, IP: #{server.ip}"
           end 
         end
@@ -144,9 +145,7 @@ module Unified_IO
 
             channel.on_data { |ch2, data|
               str << data
-              Unified_IO::Local::Shell.quiet {
-                shell.response( data )
-              }
+              shell.response( data )
 
               if data['Is this ok [y/N]'] || data[%r!\[Y/n\]!i]
                 STDOUT.flush  

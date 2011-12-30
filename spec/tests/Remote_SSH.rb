@@ -39,6 +39,24 @@ describe "Remote SSH" do
     .message.match %r!HOSTNAME: localhost, TARGET: #{`hostname`.strip}!
   end
   
+  it 'bypasses Wrong_IP check if file /tmp/skip_ip_check.txt exists.' do
+    begin
+      file = "/tmp/skip_ip_check.txt"
+      `touch #{file}`
+      
+      lambda {
+      localhost = Unified_IO::Remote::Server.new(
+        :hostname=>'localhost',
+        :group=>'App',
+        :user=>`whoami`.strip
+      )
+      Unified_IO::Remote::SSH.connect(localhost)
+      }.should.not.raise(Unified_IO::Remote::SSH::Wrong_IP)
+    ensure
+      `rm #{file}` if File.exists?(file)
+    end
+  end
+  
 end # === describe Remote SSH
               
 
