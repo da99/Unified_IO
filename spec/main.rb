@@ -74,10 +74,10 @@ class Ghost_Box
     end
     
     def bundle cmd
-			require 'open3'
-			Open3.popen3(" bundle exec #{cmd} ") { |i, o, e|
-				[o.readlines, e.readlines].compact.join(' ').strip
-			}
+      require 'open3'
+      Open3.popen3(" bundle exec #{cmd} ") { |i, o, e|
+        [o.readlines, e.readlines].compact.join(' ').strip
+      }
     end
     
   end # === module Base
@@ -107,20 +107,20 @@ def new_mock name
 end
 
 shared 'SSH to local' do
-	before do
-		@connect = lambda {
+  before do
+    @connect = lambda {
 
-			bdrm = Unified_IO::Remote::Server.new(
-				:hostname=> `hostname`.strip,
-				:group => 'None',
-				:user=>File.basename(File.expand_path '~/')
-			) 
-			Unified_IO::Remote::SSH.connect( bdrm )
-		}
-	end
-	
-			
-	after { Unified_IO::Remote::SSH.disconnect }
+      bdrm = Unified_IO::Remote::Server.new(
+        :hostname=> `hostname`.strip,
+        :group => 'None',
+        :user=>File.basename(File.expand_path '~/')
+      ) 
+      Unified_IO::Remote::SSH.connect( bdrm )
+    }
+  end
+  
+      
+  after { Unified_IO::Remote::SSH.disconnect }
 end
 
 

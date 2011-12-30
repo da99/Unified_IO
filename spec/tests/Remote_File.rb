@@ -14,11 +14,11 @@ end # === describe Remote::File.new
 
 describe "Remote::File :exist!" do
   
-	behaves_like 'SSH to local'
+  behaves_like 'SSH to local'
 
   it 'must raise an error if file! does not exist' do
-		@connect.call
-		
+    @connect.call
+    
     lambda { 
      Unified_IO::Remote::File.new("/xfile").exists!
     }.should.raise(Checked::Demand::Failed)

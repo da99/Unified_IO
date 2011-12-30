@@ -25,7 +25,7 @@ describe "Remote SSH" do
   end
   
   it "raises Wrong_IP when hostnames do not match" do
-		Unified_IO::Remote::SSH.disconnect
+    Unified_IO::Remote::SSH.disconnect
     
     lambda {
       # BIN("localhost uptime")
