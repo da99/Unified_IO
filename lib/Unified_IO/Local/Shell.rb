@@ -59,6 +59,7 @@ module Unified_IO
         def initialize raw_addr = '.'
           addr = demand!(raw_addr, :file_address!)
           @address = ::File.expand_path(addr)
+					@loud = false # Only used to override @quiet and Shell.quiet?
         end
 
         def run raw, &blok
@@ -92,8 +93,7 @@ module Unified_IO
 
           results.strip
         end
-
-
+				
         # 
         # Used for showing results.
         #
@@ -105,7 +105,7 @@ module Unified_IO
         # Used for warning messages.
         #
         def notify msg
-          colored_puts :yellow, *msgs
+          colored_puts :yellow, msg
         end
         
         # 
@@ -138,9 +138,24 @@ module Unified_IO
         def response *msgs
           colored_puts :white, *msgs
         end
+				
+				def capture_stdout &blok
+					orig = $stdout
+					str = StringIO.new
+					$stdout = str
+					orig_l = @loud
+					@loud = true
+					yield
+					str.rewind
+					str.readlines.join("\n").sub( /\n$/, '')
+				ensure 
+					@loud = orig_l
+					$stdout = orig
+				end
         
         private # ====================================== 
         def puts *args
+					return( super ) if @loud
           return if quiet? || Shell.quiet?
           super 
         end
