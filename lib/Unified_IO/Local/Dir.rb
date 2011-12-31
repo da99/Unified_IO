@@ -53,6 +53,8 @@ module Unified_IO
         end
 
         def content_address str
+          demand! str, :file_content!
+          
           found = files.select { |file|
             file.content_same_as?( str )
           }
