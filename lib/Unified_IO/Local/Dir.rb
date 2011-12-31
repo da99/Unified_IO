@@ -54,7 +54,7 @@ module Unified_IO
 
         def content_address str
           found = files.select { |file|
-            file.content_same_as_as?( str )
+            file.content_same_as?( str )
           }
 
           err_msg = "with content: #{str[0..20]}..."
@@ -63,7 +63,7 @@ module Unified_IO
           when 0
             raise File_Not_Found, err_msg
           when 1
-            found
+            found.first
           else
             raise Too_Many_Files, err_msg
           end

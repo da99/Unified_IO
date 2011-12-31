@@ -61,3 +61,15 @@ describe "Local::Dir :files" do
   end
   
 end # === describe Local::Dir :files
+
+describe "Local::Dir :content_address" do
+  
+  it 'must return address of file based on content' do
+    spec_main = File.expand_path('spec/main.rb')
+    spec_dir  = File.dirname(spec_main)
+    spec_main_contents = File.read(spec_main)
+    file = Unified_IO::Local::Dir.new(spec_dir).content_address(spec_main_contents)
+    file.address.should.be == spec_main
+  end
+  
+end # === describe Local::Dir :content_addres
