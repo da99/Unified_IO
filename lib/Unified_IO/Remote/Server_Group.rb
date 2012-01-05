@@ -17,21 +17,21 @@ module Unified_IO
         attr_reader :servers, :name
 
         def initialize raw_name
-          @name = ['*', :all, 'all'].include?(raw_name) ? '*' : raw_name.to_sym
-          @servers = Dir.glob('configs/servers/*/config.rb').map { |file|
+          @name = ['*', :all, 'all'].include?(raw_name) ? '*' : raw_name
+          @servers = ::Dir.glob('configs/servers/*/config.rb').map { |file|
 
-            name = begin
-                     pieces = file.split('/')
-                     pieces.pop
-                     pieces.pop
-                   end
+            hostname = begin
+                         pieces = file.split('/')
+                         pieces.pop
+                         pieces.pop
+                       end
             
-            server = Unified_IO::Remote::Server.new( name )
-            
-            if all?
+            server = Unified_IO::Remote::Server.new( hostname )
+          
+            if all? || ( server.group.to_s == name.to_s )
               server
             else
-              server.group == group && server
+              nil
             end
               
           }.compact
