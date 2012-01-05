@@ -14,6 +14,27 @@ module Unified_IO
       :login, :root, :password
     ]
     
+    module Class_Methods
+      
+      def config_file type, name
+        symbol! type, :in => [ :group, :server ]
+        string! name, :not_empty!
+        
+        "configs/#{type}s/#{name}/config.rb"
+      end
+      
+      def group? name
+        ::File.file?( config_file :group, name)
+      end
+
+      def server? name
+        ::File.file?( config_file :file,  name)
+      end
+      
+    end # === module Class_Methods
+    
+    include Class_Methods
+
     attr_reader :origin, *PROPS
     attr_accessor :os_name
 
