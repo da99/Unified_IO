@@ -1,0 +1,3 @@
+source :rubygems
+
+gem 'Uni_Mind', :path=>'/home/da01/MyLife/apps/GEMS/Uni_Mind'
