@@ -4,13 +4,9 @@ module Unified_IO
     class Server_Group
       module Class_Methods
         
-        def group? name
-          ::File.file?(Server.config_file :group, name)
-        end
-        
       end # === module Class_Methods
       
-      include Class_Methods
+      extend Class_Methods
       
       module Base
         

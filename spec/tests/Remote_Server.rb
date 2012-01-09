@@ -1,3 +1,35 @@
+describe "Server.server?" do
+  
+  it "returns true if dir/file exists for server." do
+    Dir.chdir("spec/Boxes") {
+      Unified_IO::Remote::Server.server?('s1').should.be === true
+    }
+  end
+
+  it "returns false if dir/file does not exist." do
+    Dir.chdir("spec/Boxes") {
+      Unified_IO::Remote::Server.server?('Krypton').should.be === false
+    }
+  end
+  
+end # === describe Server.server?
+
+describe "Server.group?" do
+  
+  it "returns true if dir/file exists for group." do
+    Dir.chdir("spec/Boxes") {
+      Unified_IO::Remote::Server.group?('Appster').should.be === true
+    }
+  end
+
+  it "returns false if dir/file does not exist." do
+    Dir.chdir("spec/Boxes") {
+      Unified_IO::Remote::Server.group?('DATA').should.be === false
+    }
+  end
+  
+end # === describe Server.group?
+
 
 describe "Server" do
   

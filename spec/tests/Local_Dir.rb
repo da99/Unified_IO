@@ -1,5 +1,4 @@
 require 'Checked'
-require 'Checked/Demand'
 
 describe "Local::Dir.new" do
   

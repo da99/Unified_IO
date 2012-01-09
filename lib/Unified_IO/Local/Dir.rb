@@ -1,4 +1,4 @@
-require 'Checked/Demand'
+require 'Checked'
 require "Unified_IO/Base/File_System_Object"
 
 module Unified_IO
@@ -9,7 +9,7 @@ module Unified_IO
 
       module Base
 
-        include Checked::Demand::DSL
+        include Checked::DSL
         include ::Unified_IO::Base::File_System_Object
         include ::Unified_IO::Local::Shell::DSL
 
@@ -19,8 +19,8 @@ module Unified_IO
         public # ==============================
 
         def initialize addr
-          super(::File.expand_path(demand! addr, :file_address!))
-          named_demand! 'Local file', self.address, :not_file!
+          super(::File.expand_path(File_Path! addr))
+          file_path!( 'Local file', self.address ).not_file!
         end
 
         def english_name
@@ -53,7 +53,7 @@ module Unified_IO
         end
 
         def content_address str
-          demand! str, :file_content!
+          string!( str ).file_content!
           
           found = files.select { |file|
             file.content_same_as?( str )
@@ -73,7 +73,7 @@ module Unified_IO
 
         def content_in_any? content, *dirs
           found = dirs.flatten.detect { |raw_d|
-            name = demand!(raw_d.to_s, :dir_address!)
+            name = File_Path!(raw_d.to_s)
             Local::Dir.new(::File.join address, name).content?(content)
           }
 

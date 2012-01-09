@@ -1,5 +1,5 @@
 require 'term/ansicolor'
-require 'Checked/Clean'
+require 'Checked'
 
 module Unified_IO
   module Local
@@ -52,14 +52,13 @@ module Unified_IO
 
         include ::Unified_IO::Base::Shell
         include Term::ANSIColor
-        include Checked::Clean::DSL
-        include Checked::Demand::DSL
+        include Checked::DSL
 
         attr_reader :address
         def initialize raw_addr = '.'
-          addr = demand!(raw_addr, :file_address!)
+          addr = File_Path!(raw_addr)
           @address = ::File.expand_path(addr)
-					@loud = false # Only used to override @quiet and Shell.quiet?
+          @loud = false # Only used to override @quiet and Shell.quiet?
         end
 
         def run raw, &blok
@@ -69,7 +68,7 @@ module Unified_IO
                               $1.to_i
                             end
 
-          single_line = clean(raw, :shell)
+          single_line = string!(raw).shell
           cmd = "cd #{address} && #{single_line}  "
           tell cmd
           bash = if @bash_ver_num == 3
@@ -93,7 +92,7 @@ module Unified_IO
 
           results.strip
         end
-				
+        
         # 
         # Used for showing results.
         #
@@ -138,24 +137,24 @@ module Unified_IO
         def response *msgs
           colored_puts :white, *msgs
         end
-				
-				def capture_stdout &blok
-					orig = $stdout
-					str = StringIO.new
-					$stdout = str
-					orig_l = @loud
-					@loud = true
-					yield
-					str.rewind
-					str.readlines.join("\n").sub( /\n$/, '')
-				ensure 
-					@loud = orig_l
-					$stdout = orig
-				end
+        
+        def capture_stdout &blok
+          orig = $stdout
+          str = StringIO.new
+          $stdout = str
+          orig_l = @loud
+          @loud = true
+          yield
+          str.rewind
+          str.readlines.join("\n").sub( /\n$/, '')
+        ensure 
+          @loud = orig_l
+          $stdout = orig
+        end
         
         private # ====================================== 
         def puts *args
-					return( super ) if @loud
+          return( super ) if @loud
           return if quiet? || Shell.quiet?
           super 
         end

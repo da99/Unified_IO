@@ -88,8 +88,7 @@ module Unified_IO
 
       module Base
 
-        include Checked::Clean::DSL
-        include Checked::Demand::DSL
+        include Checked::DSL
         include ::Unified_IO::Local::Shell::DSL
         
         attr_reader :address
@@ -97,18 +96,18 @@ module Unified_IO
           @exits = [0]
           @pty   = false
           if raw_addr
-            @address = demand!(raw_addr, :file_address!)
+            @address = File_Path!(raw_addr)
           end
         end
 
         def upload raw_here, there
-          here = demand!(raw_here, :file_address!)
+          here = File_Path!(raw_here)
           raise "File does not exists: #{here}" if !::File.exists?(here)
           SSH.session.scp.upload!( here, expand_path(there) )
         end
 
         def download remote, raw_local
-          local = demand!(raw_local, :file_address!)
+          local = File_Path!(raw_local)
           raise "File exists: #{local}" if ::File.exists?(local)
           SSH.session.scp.download!( expand_path(remote), local )
         end
@@ -126,7 +125,7 @@ module Unified_IO
           raise "No block allowed." if block_given?
           raise(Not_Connected, raw) unless SSH.connected?
 
-          cmd = clean(raw, :shell)
+          cmd = string!(raw).shell
           str = ''
       
           if address
@@ -191,7 +190,7 @@ module Unified_IO
         end
 
         def expand_path raw
-          addr = demand!(raw, :file_address!)
+          addr = File_Path!(raw)
           return addr if not address
           return addr if addr[%r!^[\/\~]! ]
           File.join(address, addr)

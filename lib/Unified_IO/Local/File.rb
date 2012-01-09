@@ -1,4 +1,4 @@
-require 'Checked/Demand'
+require 'Checked'
 require "Unified_IO/Base/File"
 
 module Unified_IO
@@ -9,7 +9,7 @@ module Unified_IO
       
       module Class_Methods
 
-        include Checked::Demand::DSL
+        include Checked::DSL
 
         def filter *arr
           arr.flatten
@@ -18,21 +18,21 @@ module Unified_IO
         end
 
         def read raw_addr
-          addr = demand!(raw_addr, :file_address!)
-          demand!(::File.read(addr), :file_read!)
+          addr = File_Path!(raw_addr)
+          file_path!(::File.read addr ).file_read!
         end
 
       end # === module Dsl
 
       module Base
 
-        include Checked::Demand::DSL
+        include Checked::DSL
         include ::Unified_IO::Base::File
         include ::Unified_IO::Local::Shell::DSL
 
         def initialize addr
           super(::File.expand_path(addr))
-          named_demand! "Local file", address, :not_dir!
+          file_path!( "Local file", address ).not_dir!
         end
 
         def english_name
@@ -51,7 +51,7 @@ module Unified_IO
         def create raw
           super(raw) {
             ::File.open(address, 'w') { |io| 
-              io.write demand!(raw, :file_content!)
+              io.write file_path!(raw).file_content!
             }
           }
         end

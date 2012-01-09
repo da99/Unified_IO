@@ -1,10 +1,10 @@
-require "Checked/Demand"
+require "Checked"
 
 module Unified_IO
   module Base
     module File_System_Object
 
-      include Checked::Demand::DSL
+      include Checked::DSL
 
       private
       attr_writer :address
@@ -13,10 +13,7 @@ module Unified_IO
       attr_reader :address
 
       def initialize addr
-        self.address = begin
-                     a = demand!(addr, :file_address!)
-                     a
-                   end
+        self.address = File_Path!(addr)
         (self.address = expand_path) if local?
       end
 
@@ -32,12 +29,12 @@ module Unified_IO
       end
 
       def not_exists!
-        demand! self, :not_exists!
+        demand!( self ).not_be! :exists?
         true
       end
 
       def exists!
-        demand! self, :exists!
+        demand!( self ).be :exists?
         true
       end
 

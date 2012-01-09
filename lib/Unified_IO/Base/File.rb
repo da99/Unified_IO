@@ -1,5 +1,5 @@
 require "Unified_IO/Base/File_System_Object"
-require "Checked/Demand"
+require "Checked"
 
 module Unified_IO
 
@@ -8,14 +8,14 @@ module Unified_IO
     module File
 
       include Base::File_System_Object
-      include Checked::Demand::DSL
+      include Checked::DSL
 
       def temp_address
         @temp_address ||= "/tmp/#{address.gsub('/',',')}.#{Time.now.strftime('%F.%H.%M.%S')}"
       end
 
       def content_same_as? raw
-        content == demand!(raw, :file_content!)
+        content == string!(raw).file_content!
       end
 
       def create neo
@@ -26,7 +26,7 @@ module Unified_IO
         end
 
         not_exists!
-        yield demand!(neo, :file_content!)
+        yield string!(neo).file_content!
       end
       
       def untar 

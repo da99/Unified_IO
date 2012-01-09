@@ -16,6 +16,8 @@ module Unified_IO
     
     module Class_Methods
       
+      include Checked::DSL
+      
       def config_file type, name
         symbol! type, :in => [ :group, :server ]
         string! name, :not_empty!
@@ -33,7 +35,7 @@ module Unified_IO
       
     end # === module Class_Methods
     
-    include Class_Methods
+    extend Class_Methods
 
     attr_reader :origin, *PROPS
     attr_accessor :os_name
