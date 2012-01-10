@@ -49,16 +49,4 @@ module Unified_IO
 end # === module Unified_IO
 
 
-__END__
 
-
-def cache
-  @cache ||= begin
-               reset
-               @cache
-             end
-end
-
-def reset
-  @cache = Args.new(:content)
-end
