@@ -12,7 +12,7 @@ module Unified_IO
         include ::Unified_IO::Remote::SSH::DSL
 
         def english_name
-          "Remote file, #{address},"
+          "Remote file, #{address}"
         end
 
         def content

@@ -19,7 +19,7 @@ module Unified_IO
 
         def read raw_addr
           addr = File_Path!(raw_addr)
-          file_path!(::File.read addr ).file_read!
+          string!(::File.read addr ).file_read!
         end
 
       end # === module Dsl
@@ -36,7 +36,7 @@ module Unified_IO
         end
 
         def english_name
-          "Local file, #{address},"
+          "Local file, #{address}"
         end
 
         def content
@@ -51,7 +51,7 @@ module Unified_IO
         def create raw
           super(raw) {
             ::File.open(address, 'w') { |io| 
-              io.write file_path!(raw).file_content!
+              io.write string!(raw).file_content!
             }
           }
         end

@@ -19,18 +19,19 @@ module Unified_IO
       include Checked::DSL
       
       def config_file type, name
-        symbol! type, :in => [ :group, :server ]
-        string! name, :not_empty!
+        symbol!( type ).in! [ :group, :server ]
+        File_Path!( name )
         
         "configs/#{type}s/#{name}/config.rb"
       end
       
       def group? name
-        ::File.file?( config_file :group, name)
+        dir = config_file( :group, name ).sub("config.rb", '')
+        ::File.directory?( dir )
       end
 
       def server? name
-        ::File.file?( config_file :file,  name)
+        ::File.file?( config_file :server,  name)
       end
       
     end # === module Class_Methods

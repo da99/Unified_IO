@@ -27,12 +27,12 @@ describe "Local Shell" do
     .message.should.match %r!sh: uptimes: not found!
   end
 
-	it 'must print colored notifications.' do
-		sh = Unified_IO::Local::Shell.new
-		out = sh.capture_stdout {
-			sh.notify "hello"
-		}
-		out.should.match %r!.\[\d\dmhello.\[0m!
-	end
+  it 'must print colored notifications.' do
+    sh = Unified_IO::Local::Shell.new
+    out = sh.capture_stdout {
+      sh.notify "hello"
+    }
+    out.should.match %r!.\[\d\dmhello.\[0m!
+  end
 
 end # === describe :bash_shell

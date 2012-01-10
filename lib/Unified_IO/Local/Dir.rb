@@ -24,7 +24,7 @@ module Unified_IO
         end
 
         def english_name
-          "Local dir, #{address},"
+          "Local dir, #{address}"
         end
 
         def exists?

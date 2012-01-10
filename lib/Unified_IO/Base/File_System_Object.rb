@@ -24,7 +24,7 @@ module Unified_IO
                             .last
                             .capitalize
                             .gsub('_', ' ') 
-                          "#{name}, #{address.inspect},"
+                          "#{name}, #{address.inspect}"
                           end
       end
 
@@ -34,7 +34,7 @@ module Unified_IO
       end
 
       def exists!
-        demand!( self ).be :exists?
+        demand!( self ).be! :exists?
         true
       end
 

@@ -36,7 +36,7 @@ describe 'Local::Dir :exists!' do
     lambda {
       Unified_IO::Local::Dir.new("/xbox").exists!
     }.should.raise(Checked::Demand::Failed)
-    .message.should.match %r!Local dir, "?/xbox"?, must exist.!
+    .message.should.match %r!Local dir, "?/xbox"?,.+, must be: exists\?!
   end
 
 end # === describe dir!

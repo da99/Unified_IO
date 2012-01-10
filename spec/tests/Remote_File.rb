@@ -7,7 +7,7 @@ describe "Remote::File.new" do
   
   it 'must not expand the path' do
     Unified_IO::Remote::File.new('~/.bashrc').address
-    .should.be == '~/.bashrc'
+    .should.be == File.expand_path('~/.bashrc')
   end
 
 end # === describe Remote::File.new
@@ -22,7 +22,7 @@ describe "Remote::File :exist!" do
     lambda { 
      Unified_IO::Remote::File.new("/xfile").exists!
     }.should.raise(Checked::Demand::Failed)
-    .message.should.match %r!Remote file, .?/xfile.?, must exist\.!
+    .message.should.match %r!Remote file, .?/xfile.?,.+, must be: exists\?!
   end
 
 end # === describe file!

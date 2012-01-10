@@ -10,7 +10,7 @@ describe "Local::File.new" do
     lambda { Unified_IO::Local::File.new('~/') }
     .should.raise(Checked::Demand::Failed)
     .message
-    .should.match %r!Local file, "#{addr}", can't be a directory.!
+    .should.match %r!Local file, "#{addr}", can't.+directory.!
   end
   
   it 'must expand the path' do
@@ -33,7 +33,7 @@ describe "Local::File :exist!" do
     lambda { 
       Unified_IO::Local::File.new("/xfile").exists!
     }.should.raise(Checked::Demand::Failed)
-    .message.should.match %r!Local file, .?/xfile.?, must exist\.!
+    .message.should.match %r!Local file, .?/xfile.?,.+, must be: exists\?!
   end
   
 
@@ -63,7 +63,7 @@ describe "Local::File :create a new file." do
     }
     .should.raise(Checked::Demand::Failed)
     .message
-    .should.match %r!Local file, .?#{old}.?, must not exist\.!
+    .should.match %r!Local file, .?#{old}.?,.+, must not be: exists\?!
       
   end
   
