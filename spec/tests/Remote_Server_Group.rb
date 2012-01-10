@@ -1,5 +1,5 @@
 
-describe "Server_Group" do
+describe "Server_Group.new" do
   
   it 'grabs all servers within that group' do
     Dir.chdir('spec/Boxes') {
@@ -8,11 +8,21 @@ describe "Server_Group" do
     }
   end
   
+end # === describe Server_Group
+
+describe "Server_Group.all" do
+  
   it 'grabs all servers for group "*"' do
     Dir.chdir('spec/Boxes') {
-      group = Unified_IO::Remote::Server_Group.new("*")
-      group.servers.map(&:hostname).sort.should == %w{ db1 s1 s2 }
+      group = Unified_IO::Remote::Server_Group.all
+      group.map(&:name).sort.should == %w{ Appster Db }
     }
   end
+
+  it 'raises Server_Group::Not_Found if no servers are found' do
+    lambda { Unified_IO::Remote::Server_Group.all }
+    .should.raise(Unified_IO::Remote::Server_Group::Not_Found)
+    .message.should.match %r!None!i
+  end
   
-end # === describe Server_Group
+end # === describe Server_Group.all

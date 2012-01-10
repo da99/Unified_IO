@@ -30,6 +30,22 @@ describe "Server.group?" do
   
 end # === describe Server.group?
 
+describe "Server.all" do
+  
+  it 'returns an array of Remote_Server objects' do
+    Dir.chdir('spec/Boxes') {
+      all = Unified_IO::Remote::Server.all
+      all.map(&:hostname).sort.should == %w{ db1 s1 s2 }
+    }
+  end
+  
+  it 'raises Server:Not_Found if no servers are found' do
+    lambda { Unified_IO::Remote::Server.all }
+    .should.raise(Unified_IO::Remote::Server::Not_Found)
+    .message.should.match %r!None!i
+  end
+  
+end # === describe Server.all
 
 describe "Server" do
   
