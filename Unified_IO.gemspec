@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'Bacon_FS'
   s.add_development_dependency 'mocha-on-bacon'
   
-  s.add_runtime_dependency 'Checked'
+  s.add_runtime_dependency 'Checked', '<= 0.1.4'
   s.add_runtime_dependency 'net-ssh'
   s.add_runtime_dependency 'net-scp'
   s.add_runtime_dependency 'term-ansicolor'
