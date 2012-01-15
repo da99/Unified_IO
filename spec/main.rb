@@ -129,15 +129,3 @@ Dir.glob('spec/tests/*.rb').each { |file|
   require ::File.expand_path(file.sub('.rb', '')) if ::File.file?(file)
 }
 
-
-__END__
-
-
-shared( "OS mock" ) { 
-  
-  before do
-    raise "Mocks left from previous test." if not MOCKERS.empty?
-  end
-  
-}
-

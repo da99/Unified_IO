@@ -88,7 +88,7 @@ module Unified_IO
 
       module Base
 
-        include Checked::DSL
+        include Checked::DSL::Racked
         include ::Unified_IO::Local::Shell::DSL
         
         attr_reader :address

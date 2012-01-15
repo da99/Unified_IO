@@ -18,12 +18,12 @@ module Unified_IO
 
       module Class_Methods
 
-        include Checked::DSL
+        include Checked::DSL::Racked
 
         def config_file type, name
           type = :server if type == :servers && name == '*'
           type = :group  if type == :groups  && name == '*'
-          symbol!( type ).in! [ :group, :server ]
+          Symbol!( type ).in! [ :group, :server ]
           File_Path!( name ) unless name == '*'
 
           path = "configs/#{type}s/#{name}/config.rb"

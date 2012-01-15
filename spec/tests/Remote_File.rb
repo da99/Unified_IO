@@ -19,10 +19,14 @@ describe "Remote::File :exist!" do
   it 'must raise an error if file! does not exist' do
     @connect.call
     
-    lambda { 
+    m = lambda { 
      Unified_IO::Remote::File.new("/xfile").exists!
     }.should.raise(Checked::Demand::Failed)
-    .message.should.match %r!Remote file, .?/xfile.?,.+, must be: exists\?!
+    .message
+    
+    m.should.match %r!Remote file, !
+    m.should.match %r!/xfile!
+    m.should.match %r!exists\?!
   end
 
 end # === describe file!
