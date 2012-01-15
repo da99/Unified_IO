@@ -12,9 +12,10 @@ module Unified_IO
         include Checked::DSL::Racked
 
         def filter *arr
-          arr.flatten
-          .select { |path| ::File.file?(path) }
-          .map { |path|  Local::File.new(path) }
+          arr
+          .flatten
+          .map { |path| ::File.file?(path) ? Local::File.new(path) : nil }
+          .compact
         end
 
         def read raw_addr
