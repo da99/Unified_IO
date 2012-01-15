@@ -33,10 +33,13 @@ end # === describe Local::Dir.new
 describe 'Local::Dir :exists!' do
   
   it 'must raise an error if it does not exist' do
-    lambda {
+    m = lambda {
       Unified_IO::Local::Dir.new("/xbox").exists!
     }.should.raise(Checked::Demand::Failed)
-    .message.should.match %r!Local dir, "?/xbox"?,.+, must be: exists\?!
+    .message
+    m.should.match %r!Local dir, !
+    m.should.match %r!/xbox!
+    m.should.match %r!exists\?!
   end
 
 end # === describe dir!
@@ -52,11 +55,11 @@ end # === describe Detecting a dir:
 describe "Local::Dir :files" do
   
   it 'must include hidden and visible files' do
-    files        = Unified_IO::Local::Dir.new('~/').files.map(&:address)
-    path         = File.expand_path('~/*')
-    target       = (Dir.glob( path ) + Dir.glob( path, File::FNM_DOTMATCH)).select { |file| File.file?(file) }
+    path         = File.expand_path( '.' )
+    target       = Dir.glob( path + '/*', File::FNM_DOTMATCH).select { |file| File.file?(file) }
+    files        = Unified_IO::Local::Dir.new( path ).files.map(&:address)
     
-    files.should == target
+    files.sort.should == target.sort
   end
   
 end # === describe Local::Dir :files

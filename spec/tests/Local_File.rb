@@ -30,10 +30,13 @@ end # === describe Local::File.new
 describe "Local::File :exist!" do
   
   it 'must raise an error if file! does not exist' do
-    lambda { 
+    m = lambda { 
       Unified_IO::Local::File.new("/xfile").exists!
     }.should.raise(Checked::Demand::Failed)
-    .message.should.match %r!Local file, .?/xfile.?,.+, must be: exists\?!
+    .message
+    m.should.match %r!Local file, !
+    m.should.match %r!/xfile!
+    m.should.match %r!exists\?!
   end
   
 

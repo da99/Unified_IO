@@ -9,7 +9,7 @@ module Unified_IO
 
       module Base
 
-        include Checked::DSL
+        include Checked::DSL::Racked
         include ::Unified_IO::Base::File_System_Object
         include ::Unified_IO::Local::Shell::DSL
 
@@ -20,7 +20,7 @@ module Unified_IO
 
         def initialize addr
           super(::File.expand_path(File_Path! addr))
-          file_path!( 'Local file', self.address ).not_file!
+          File_Path!( 'Local file', self.address ).not_file!
         end
 
         def english_name
@@ -53,7 +53,7 @@ module Unified_IO
         end
 
         def content_address str
-          string!( str ).file_content!
+          String!( str ).file_content!
           
           found = files.select { |file|
             file.content_same_as?( str )

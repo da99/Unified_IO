@@ -125,7 +125,7 @@ module Unified_IO
           raise "No block allowed." if block_given?
           raise(Not_Connected, raw) unless SSH.connected?
 
-          cmd = string!(raw).shell
+          cmd = String!(raw).shell
           str = ''
       
           if address

@@ -4,7 +4,7 @@ module Unified_IO
   module Base
     module File_System_Object
 
-      include Checked::DSL
+      include Checked::DSL::Racked
 
       private
       attr_writer :address
@@ -29,12 +29,12 @@ module Unified_IO
       end
 
       def not_exists!
-        demand!( self ).not_be! :exists?
+        Var!( self ).not_be! :exists?
         true
       end
 
       def exists!
-        demand!( self ).be! :exists?
+        Var!( self ).be! :exists?
         true
       end
 

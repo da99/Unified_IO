@@ -52,7 +52,7 @@ module Unified_IO
 
         include ::Unified_IO::Base::Shell
         include Term::ANSIColor
-        include Checked::DSL
+        include Checked::DSL::Racked
 
         attr_reader :address
         def initialize raw_addr = '.'
@@ -68,7 +68,7 @@ module Unified_IO
                               $1.to_i
                             end
 
-          single_line = string!(raw).shell
+          single_line = String!(raw).shell
           cmd = "cd #{address} && #{single_line}  "
           tell cmd
           bash = if @bash_ver_num == 3

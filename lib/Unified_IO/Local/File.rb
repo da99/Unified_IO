@@ -9,7 +9,7 @@ module Unified_IO
       
       module Class_Methods
 
-        include Checked::DSL
+        include Checked::DSL::Racked
 
         def filter *arr
           arr.flatten
@@ -19,7 +19,7 @@ module Unified_IO
 
         def read raw_addr
           addr = File_Path!(raw_addr)
-          string!(::File.read addr ).file_read!
+          String!(::File.read addr ).file_read!
         end
 
       end # === module Dsl
@@ -32,7 +32,7 @@ module Unified_IO
 
         def initialize addr
           super(::File.expand_path(addr))
-          file_path!( "Local file", address ).not_dir!
+          File_Path!( "Local file", address ).not_dir!
         end
 
         def english_name
@@ -51,7 +51,7 @@ module Unified_IO
         def create raw
           super(raw) {
             ::File.open(address, 'w') { |io| 
-              io.write string!(raw).file_content!
+              io.write String!(raw).file_content!
             }
           }
         end

@@ -15,7 +15,7 @@ module Unified_IO
       end
 
       def content_same_as? raw
-        content == string!(raw).file_content!
+        content == String!(raw).file_content!
       end
 
       def create neo
@@ -26,7 +26,7 @@ module Unified_IO
         end
 
         not_exists!
-        yield string!(neo).file_content!
+        yield String!(neo).file_content!
       end
       
       def untar 
