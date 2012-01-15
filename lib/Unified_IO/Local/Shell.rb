@@ -97,14 +97,14 @@ module Unified_IO
         # Used for showing results.
         #
         def display msg
-          puts msg
+          print msg, "\n"
         end
 
         # 
         # Used for warning messages.
         #
         def notify msg
-          colored_puts :yellow, msg
+          color_and_print :yellow, msg
         end
         
         # 
@@ -118,24 +118,24 @@ module Unified_IO
         # Tell user what you are doing.
         #
         def tell *msgs
-          colored_puts :blue, *msgs
+          color_and_print :blue, *msgs
         end
 
         # 
         # Show off errors.
         #
         def yell *msgs
-          colored_puts :red, *msgs
+          color_and_print :red, *msgs
         end
 
-        def colored_puts color, *msgs
+        def color_and_print color, *msgs
           msgs.flatten.each { |str|
-            puts send( color, str.to_s )
+            print send( color, str.to_s ), "\n"
           }
         end
         
         def response *msgs
-          colored_puts :white, *msgs
+          color_and_print :white, *msgs
         end
         
         def capture_stdout &blok
@@ -153,7 +153,7 @@ module Unified_IO
         end
         
         private # ====================================== 
-        def puts *args
+        def print *args
           return( super ) if @loud
           return if quiet? || Shell.quiet?
           super 

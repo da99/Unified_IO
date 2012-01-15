@@ -199,7 +199,7 @@ class File_Raker
       raise "Destination can't be empty." if dest.empty?
 
       use_scp "-P #{DEPLOYER.host_port} #{source} #{fetch :ssh_user}@#{DEPLOYER.host_address}:#{dest}"
-      puts ""
+      print "", "\n"
     end
 
   end # === module Mod
