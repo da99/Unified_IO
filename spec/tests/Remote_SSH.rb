@@ -5,7 +5,8 @@ describe "Remote SSH" do
 
   it "strips returned String" do
     @connect.call
-    Unified_IO::Remote::SSH.new.run("uptime").should == `uptime`.strip
+    target = `uptime`.strip.gsub(%r!\d+!, '[0-9]{1,2}')
+    Unified_IO::Remote::SSH.new.run("uptime").should.match %r!#{target}!
   end
   
   it 'sets :disconnected? to the states of the :connection' do

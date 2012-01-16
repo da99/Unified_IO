@@ -56,12 +56,20 @@ module Unified_IO
 
         attr_reader :address
         def initialize raw_addr = '.'
-          addr = File_Path!(raw_addr)
-          @address = ::File.expand_path(addr)
+          @address = ::File.expand_path(not_empty! raw_addr.strip)
           @loud = false # Only used to override @quiet and Shell.quiet?
         end
 
-        def run raw, &blok
+        def run raw
+          raise ArgumentError, "No block allowed." if block_given?
+          if ENV['SHOW_IO']
+            run_backticks raw
+          else
+            run_sudo raw
+          end
+        end
+
+        def run_sudo raw, &blok
 
           @bash_ver_num ||= begin
                               @bash_version = %x! bash --version ![%r!GNU bash, version (\d)!]
@@ -84,6 +92,26 @@ module Unified_IO
             io.read
           end
 
+          stat = $?.exitstatus
+
+          if stat != 0
+            raise Failed, "EXIT: #{stat.inspect} OUTPUT: \n !!!-- #{results} ---!!!"
+          end
+
+          results.strip
+        end
+
+        def run_backticks raw
+          raise ArgumentError, "No block allowed." if block_given?
+
+          single_line = begin
+                          not_empty! raw.strip.split("\n").join(' && ')
+                        end
+          cmd = "cd #{address} && #{single_line}  "
+          tell cmd
+          bash = "#{cmd} 2>&1"
+
+          results = `#{bash}`
           stat = $?.exitstatus
 
           if stat != 0
