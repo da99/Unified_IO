@@ -17,10 +17,11 @@ describe "Remote::File :exist!" do
   behaves_like 'SSH to local'
 
   it 'must raise an error if file! does not exist' do
-    @connect.call
     
     m = lambda { 
-     Unified_IO::Remote::File.new("/xfile").exists!
+     f = Unified_IO::Remote::File.new("/xfile")
+     f.server = @localhost
+     f.exists!
     }.should.raise(Checked::Demand::Failed)
     .message
     

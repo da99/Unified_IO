@@ -107,20 +107,17 @@ def new_mock name
 end
 
 shared 'SSH to local' do
-  before do
-    @connect = lambda {
-
-      bdrm = Unified_IO::Remote::Server.new(
-        :hostname=> `hostname`.strip,
-        :group => 'None',
-        :user=>File.basename(File.expand_path '~/')
-      ) 
-      Unified_IO::Remote::SSH.connect( bdrm )
-    }
-  end
   
+  before do
+    extend Unified_IO::Remote::SSH::DSL
+    @localhost = Unified_IO::Remote::Server.new(
+      :hostname=> `hostname`.strip,
+      :group => 'None',
+      :user=>File.basename(File.expand_path '~/')
+    ) 
+    self.server = @localhost
+  end
       
-  after { Unified_IO::Remote::SSH.disconnect }
 end
 
 

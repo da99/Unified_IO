@@ -4,10 +4,15 @@ describe "Remote SSH" do
   behaves_like 'SSH to local'
 
   it "strips returned String" do
-    @connect.call
     target = `uptime`.strip.gsub(%r!\d+!, '[0-9]{1,2}')
-    Unified_IO::Remote::SSH.new.run("uptime").should.match %r!#{target}!
+    ssh_run("uptime").should.match %r!#{target}!
   end
+  
+end # === describe Remote SSH
+              
+
+__END__
+
   
   it 'sets :disconnected? to the states of the :connection' do
     BOX.bundle("ruby spec/files/Disconnection.rb").split.should == %w{ same same same }
@@ -24,6 +29,7 @@ describe "Remote SSH" do
   it "can open a new connection after closing an old one." do
     BOX.bundle("ruby spec/files/Multi_Open.rb").strip.should == "opened/closed all"
   end
+  
   
   it "raises Wrong_IP when hostnames do not match" do
     Unified_IO::Remote::SSH.disconnect
@@ -57,6 +63,3 @@ describe "Remote SSH" do
     end
   end
   
-end # === describe Remote SSH
-              
-

@@ -13,32 +13,49 @@ module Unified_IO
 
       module DSL
 
-        def ssh
-          SSH.new
-        end
-        
-        def ssh!
-          SSH
+        attr_accessor :server
+
+        def scp_upload l, r
+          Net::SCP.upload!(server.hostname, server.user, l, r, :password => server.password)
         end
 
+        def scp_download remote, raw_local
+          local = File_Path!(raw_local)
+          raise "File exists: #{local}" if ::File.exists?(local)
+          raise "Implementation not done."
+          Net::SCP.download!( remote, local )
+        end
+
+        def ssh_run cmd
+          stdout = ""
+          stderr = ""
+
+          Net::SSH.start(server.hostname, server.user, :password => server.password) do |ssh|
+
+            # capture only stdout matching a particular pattern
+            ssh.exec!(cmd) do |channel, stream, data|
+              if stream == :stdout
+                stdout << data 
+              else
+                stderr << "#{stream}: #{data}"
+              end
+            end
+
+          end
+
+          if not stderr.empty?
+            raise Unified_IO::Remote::Shell, stderr
+          end
+
+          stdout
+        end
+        
       end # === module DSL
 
       module Class_Methods
 
-        attr_accessor :session
-        include ::Unified_IO::Base::Shell
-        include ::Unified_IO::Local::Shell::DSL
-
-        def connection
-          session
-        end
-
-        def connected?
-          return false if !@session
-          return !@session.closed?
-        end
-
         def connect server
+          raise "Implementation not done."
           if connected?
             raise "
               Connection already established.
@@ -104,12 +121,6 @@ module Unified_IO
           here = File_Path!(raw_here)
           raise "File does not exists: #{here}" if !::File.exists?(here)
           SSH.session.scp.upload!( here, expand_path(there) )
-        end
-
-        def download remote, raw_local
-          local = File_Path!(raw_local)
-          raise "File exists: #{local}" if ::File.exists?(local)
-          SSH.session.scp.download!( expand_path(remote), local )
         end
 
         def pty

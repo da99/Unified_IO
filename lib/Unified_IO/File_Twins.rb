@@ -19,6 +19,11 @@ module Unified_IO
         @remote  = Remote::File.new(remote_addr)
       end
 
+      def server= s
+        remote.server= s
+        super
+      end
+
       def uploaded?
         return false if not remote.exists?
         local.exists!
@@ -47,6 +52,7 @@ module Unified_IO
       end # === def upload      
       
       def download
+        raise "Implementation not done."
         if downloaded?
           shell.notify(
             "File downloaded [from] [to]:", remote.address, local.address

@@ -17,12 +17,15 @@ module Unified_IO
 
         def content
           exists!
-          ssh.run "cat #{address}"
+          ssh_run "cat #{address}"
         end
 
         def exists?
-          raw = ssh.exits(0,1).run( %~ [[ -f #{address} ]] && echo 'ok' ~ )
-          raw.strip == 'ok'
+          begin
+            ssh_run( %~ [[ -f #{address} ]] && echo 'ok' ~ ) == 'ok'
+          rescue ::Unified_IO::Remote::SSH::Failed
+            false
+          end
         end
 
         def create raw
@@ -31,7 +34,7 @@ module Unified_IO
             t.create neo
 
             # From: http://stackoverflow.com/questions/5310063/ruby-netscp-and-custom-ports
-            results = ssh.upload( temp_address, address )
+            results = scp_upload( temp_address, address )
             ::File.delete(temp_address)
 
             results

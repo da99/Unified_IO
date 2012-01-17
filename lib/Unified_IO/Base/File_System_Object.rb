@@ -29,12 +29,12 @@ module Unified_IO
       end
 
       def not_exists!
-        Var!( self ).not_be! :exists?
+        Var!( english_name, self ).not_be! :exists?
         true
       end
 
       def exists!
-        Var!( self ).be! :exists?
+        Var!( english_name, self ).be! :exists?
         true
       end
 
