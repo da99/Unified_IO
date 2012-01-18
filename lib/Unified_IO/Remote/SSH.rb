@@ -10,6 +10,7 @@ module Unified_IO
       Not_Connected = Class.new(RuntimeError)
       Failed        = Class.new(RuntimeError)
       Wrong_IP      = Class.new(RuntimeError)
+      Retry_Command = Class.new(RuntimeError)
 
       module DSL
 
@@ -30,24 +31,35 @@ module Unified_IO
           stdout = ""
           stderr = ""
 
-          Net::SSH.start(server.hostname, server.user, :password => server.password) do |ssh|
+          begin
+            
+            Net::SSH.start(server.hostname, server.user, :password => server.password) { |ssh|
 
-            # capture only stdout matching a particular pattern
-            ssh.exec!(cmd) do |channel, stream, data|
-              if stream == :stdout
-                stdout << data 
-              else
-                stderr << "#{stream}: #{data}"
+              # capture only stdout matching a particular pattern
+              ssh.exec!(cmd) do |channel, stream, data|
+                if stream == :stdout
+                  stdout << data 
+                else
+                  stderr << "#{stream}: #{data}"
+                end
               end
+            }
+
+            raise Unified_IO::Remote::Shell, stderr unless stderr.empty?
+            stdout
+            
+          rescue Timeout::Error => e
+            raise e.class, server.inspect
+            
+          rescue Net::SSH::HostKeyMismatch => e
+            if e.message[%r!fingerprint .+ does not match for!]
+              shell.tell "Try this", "ssh-keygen -f \"~/.ssh/known_hosts\" -R #{server[:ip]}"
+              raise Retry_Command, "Removed the RSA key."
             end
-
+            
+            raise e
+            
           end
-
-          if not stderr.empty?
-            raise Unified_IO::Remote::Shell, stderr
-          end
-
-          stdout
         end
         
       end # === module DSL
