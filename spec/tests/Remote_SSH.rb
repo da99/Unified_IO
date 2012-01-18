@@ -8,6 +8,40 @@ describe "Remote SSH" do
     ssh_run("uptime").should.match %r!#{target}!
   end
   
+  it "raises Wrong_IP when hostnames do not match" do
+    lambda {
+      # BIN("localhost uptime")
+      localhost = Unified_IO::Remote::Server.new(
+        :hostname=>'localhost',
+        :group=>'App',
+        :user=>`whoami`.strip
+      )
+      
+      self.server = localhost
+      ssh_run 'uptime'
+    }.should.raise(Unified_IO::Remote::SSH::Wrong_IP)
+    .message.match %r!Hostname: localhost, Target: !
+  end
+  
+  it 'bypasses Wrong_IP check if ENV["SKIP_IP_CHECK"] exists.' do
+    begin
+      ENV['SKIP_IP_CHECK'] = 'true'
+      
+      lambda {
+        localhost = Unified_IO::Remote::Server.new(
+          :hostname=>'localhost',
+          :group=>'App',
+          :user=>`whoami`.strip
+        )
+        self.server = localhost
+        ssh_run 'hostname'
+      }.should.not.raise(Unified_IO::Remote::SSH::Wrong_IP)
+    ensure
+      ENV.delete 'SKIP_IP_CHECK'
+    end
+  end
+  
+  
 end # === describe Remote SSH
               
 
@@ -30,36 +64,4 @@ __END__
     BOX.bundle("ruby spec/files/Multi_Open.rb").strip.should == "opened/closed all"
   end
   
-  
-  it "raises Wrong_IP when hostnames do not match" do
-    Unified_IO::Remote::SSH.disconnect
-    
-    lambda {
-      # BIN("localhost uptime")
-      localhost = Unified_IO::Remote::Server.new(
-        :hostname=>'localhost',
-        :group=>'App',
-        :user=>`whoami`.strip
-      )
-      Unified_IO::Remote::SSH.connect(localhost)
-    }.should.raise(Unified_IO::Remote::SSH::Wrong_IP)
-    .message.match %r!HOSTNAME: localhost, TARGET: #{`hostname`.strip}!
-  end
-  
-  it 'bypasses Wrong_IP check if ENV["SKIP_IP_CHECK"] exists.' do
-    begin
-      ENV['SKIP_IP_CHECK'] = 'true'
-      
-      lambda {
-      localhost = Unified_IO::Remote::Server.new(
-        :hostname=>'localhost',
-        :group=>'App',
-        :user=>`whoami`.strip
-      )
-      Unified_IO::Remote::SSH.connect(localhost)
-      }.should.not.raise(Unified_IO::Remote::SSH::Wrong_IP)
-    ensure
-      ENV.delete 'SKIP_IP_CHECK'
-    end
-  end
   

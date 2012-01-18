@@ -28,12 +28,19 @@ module Unified_IO
         end
 
         def ssh_run cmd
+          @server_validation ||= {}
           stdout = ""
           stderr = ""
 
           begin
             
             Net::SSH.start(server.hostname, server.user, :password => server.password) { |ssh|
+
+              unless @server_validation[server.hostname] || ENV['SKIP_IP_CHECK']
+                right_ip = ssh.exec!('hostname').strip == server.hostname
+                raise Wrong_IP, "Hostname: #{server.hostname}, Target: #{server.inspect}" unless right_ip
+                @server_validation[server.hostname] = right_ip
+              end
 
               # capture only stdout matching a particular pattern
               ssh.exec!(cmd) do |channel, stream, data|
@@ -46,7 +53,7 @@ module Unified_IO
             }
 
             raise Unified_IO::Remote::Shell, stderr unless stderr.empty?
-            stdout
+            stdout.strip
             
           rescue Timeout::Error => e
             raise e.class, server.inspect
