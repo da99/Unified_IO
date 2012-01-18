@@ -43,7 +43,7 @@ module Unified_IO
         if local?
           ::File.expand_path address
         else
-          ::File.join(ssh.pwd, address)
+          ::File.join(ssh_run('pwd'), address)
         end
       end
       
