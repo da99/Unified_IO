@@ -70,14 +70,30 @@ describe ":ssh_exits" do
   behaves_like 'SSH to local'
   
   it 'captures exits based on key => int, val => Regexp' do
-    ignore_exits(1=>%r!something\.txt\: No such file or directory!) {
+    lambda {
+      ignore_exits(1=>%r!something\.txt\: No such file or directory!) {
+        ssh_exec "cat something.txt"
+      }
+    }.should.not.raise
+  end
+  
+  it 'captures exits based on key => int, val => String' do
+    lambda {
+      ignore_exits(1=>'something.txt: No such file or directory') {
+        ssh_exec "cat something.txt"
+      }
+    }.should.not.raise
+  end
+  
+  it 'returns SSH::Results for a non-zero exit status' do
+    ignore_exits(1=>'something.txt: No such file or directory') {
       ssh_exec "cat something.txt"
     }.should.be.is_a Unified_IO::Remote::SSH::Results
   end
   
-  it 'captures exits based on key => int, val => String' do
+  it 'returns SSH::Results for a zero exit status' do
     ignore_exits(1=>'something.txt: No such file or directory') {
-      ssh_exec "cat something.txt"
+      ssh_exec "uptime"
     }.should.be.is_a Unified_IO::Remote::SSH::Results
   end
   
