@@ -2,22 +2,18 @@
 describe "Remote SSH" do
   
   behaves_like 'SSH to local'
-
-  it "strips returned String" do
-    target = `uptime`.strip.gsub(%r!\d+!, '[0-9]{1,2}')
-    ssh_run("uptime").should.match %r!#{target}!
+  
+  before do
+    @wrong_ip = Unified_IO::Remote::Server.new(
+      :hostname=> 'localhost',
+      :group=>'Apps',
+      :user=>`whoami`.strip
+    ) 
   end
   
   it "raises Wrong_IP when hostnames do not match" do
     lambda {
-      # BIN("localhost uptime")
-      localhost = Unified_IO::Remote::Server.new(
-        :hostname=>'localhost',
-        :group=>'App',
-        :user=>`whoami`.strip
-      )
-      
-      self.server = localhost
+      self.server = @wrong_ip
       ssh_run 'uptime'
     }.should.raise(Unified_IO::Remote::SSH::Wrong_IP)
     .message.match %r!Hostname: localhost, Target: !
@@ -25,43 +21,38 @@ describe "Remote SSH" do
   
   it 'bypasses Wrong_IP check if ENV["SKIP_IP_CHECK"] exists.' do
     begin
-      ENV['SKIP_IP_CHECK'] = 'true'
-      
       lambda {
-        localhost = Unified_IO::Remote::Server.new(
-          :hostname=>'localhost',
-          :group=>'App',
-          :user=>`whoami`.strip
-        )
-        self.server = localhost
+        ENV['SKIP_IP_CHECK'] = 'true'
+        self.server = @wrong_ip
         ssh_run 'hostname'
       }.should.not.raise(Unified_IO::Remote::SSH::Wrong_IP)
     ensure
       ENV.delete 'SKIP_IP_CHECK'
     end
   end
+
+  it "strips returned data" do
+    target = `uptime`.strip.gsub(%r!\d+!, '[0-9]{1,2}')
+    ssh_run("uptime").should.match %r!#{target}!
+  end
   
+  it 'raises SSH::Exit_Error if return status is not zero' do
+    e = lambda {
+      ssh_run "HOSTNAMES"
+    }.should.raise(Unified_IO::Remote::SSH::Exit_Error)
+
+    e.result.exit_status.should == 127
+  end
+  
+  it 'returns a SSH::Results' do
+    ssh_exec("hostname").should.be.is_a Unified_IO::Remote::SSH::Results
+  end
+  
+  it 'returns a SSH::Results with an array of data' do
+    ssh_exec("whoami").data.should.be == [`whoami`.strip]
+  end
   
 end # === describe Remote SSH
               
-
-__END__
-
-  
-  it 'sets :disconnected? to the states of the :connection' do
-    BOX.bundle("ruby spec/files/Disconnection.rb").split.should == %w{ same same same }
-  end
-  
-  it "closes a connection at ending" do
-    BOX.bundle("ruby spec/files/Close_At_Exit.rb").strip.should == "closed"
-  end
-  
-  it "allows multiple closings of a connection" do
-    BOX.bundle("ruby spec/files/Multi_Close.rb").strip.should == "all closed"
-  end
-  
-  it "can open a new connection after closing an old one." do
-    BOX.bundle("ruby spec/files/Multi_Open.rb").strip.should == "opened/closed all"
-  end
   
   

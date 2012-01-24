@@ -113,7 +113,7 @@ shared 'SSH to local' do
     @localhost = Unified_IO::Remote::Server.new(
       :hostname=> `hostname`.strip,
       :group => 'None',
-      :user=>File.basename(File.expand_path '~/')
+      :user=>`whoami`.strip
     ) 
     self.server = @localhost
   end
