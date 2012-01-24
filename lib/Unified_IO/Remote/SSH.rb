@@ -48,6 +48,19 @@ module Unified_IO
           Net::SCP.download!( remote, local )
         end
 
+        def ignore_exits hsh
+          begin
+            results = yield
+          rescue Exit_Error => e
+            ignore = hsh.detect { |k,v|
+              k == e.result.exit_status && e.message[v]
+            }
+            raise e unless ignore
+            
+            e.result
+          end
+        end
+
         def ssh_run cmd
           r = ssh_exec(cmd)
           r.data.join("\n")

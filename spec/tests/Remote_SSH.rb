@@ -65,5 +65,21 @@ describe ":ssh_run" do
 
 end # === describe :ssh_run
            
+describe ":ssh_exits" do
   
+  behaves_like 'SSH to local'
+  
+  it 'captures exits based on key => int, val => Regexp' do
+    ignore_exits(1=>%r!something\.txt\: No such file or directory!) {
+      ssh_exec "cat something.txt"
+    }.should.be.is_a Unified_IO::Remote::SSH::Results
+  end
+  
+  it 'captures exits based on key => int, val => String' do
+    ignore_exits(1=>'something.txt: No such file or directory') {
+      ssh_exec "cat something.txt"
+    }.should.be.is_a Unified_IO::Remote::SSH::Results
+  end
+  
+end # === describe :ssh_exits
   
