@@ -48,9 +48,11 @@ module Unified_IO
           Net::SCP.download!( remote, local )
         end
 
-        def ignore_exits hsh
+        def ignore_exits cmd, hsh
+          raise ArgumentError, "No block allowed." if block_given?
+          
           begin
-            results = yield
+            ssh_exec cmd
           rescue Exit_Error => e
             ignore = hsh.detect { |k,v|
               k == e.result.exit_status && e.message[v]

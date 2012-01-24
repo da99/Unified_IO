@@ -71,30 +71,24 @@ describe ":ssh_exits" do
   
   it 'captures exits based on key => int, val => Regexp' do
     lambda {
-      ignore_exits(1=>%r!something\.txt\: No such file or directory!) {
-        ssh_exec "cat something.txt"
-      }
+      ignore_exits("cat something.txt", 1=>%r!something\.txt\: No such file or directory!)
     }.should.not.raise
   end
   
   it 'captures exits based on key => int, val => String' do
     lambda {
-      ignore_exits(1=>'something.txt: No such file or directory') {
-        ssh_exec "cat something.txt"
-      }
+      ignore_exits("cat something.txt", 1=>'something.txt: No such file or directory') 
     }.should.not.raise
   end
   
   it 'returns SSH::Results for a non-zero exit status' do
-    ignore_exits(1=>'something.txt: No such file or directory') {
-      ssh_exec "cat something.txt"
-    }.should.be.is_a Unified_IO::Remote::SSH::Results
+    ignore_exits("cat something.txt", 1=>'something.txt: No such file or directory')
+    .should.be.is_a Unified_IO::Remote::SSH::Results
   end
   
   it 'returns SSH::Results for a zero exit status' do
-    ignore_exits(1=>'something.txt: No such file or directory') {
-      ssh_exec "uptime"
-    }.should.be.is_a Unified_IO::Remote::SSH::Results
+    ignore_exits("uptime", 1=>'something.txt: No such file or directory')
+    .should.be.is_a Unified_IO::Remote::SSH::Results
   end
   
 end # === describe :ssh_exits
