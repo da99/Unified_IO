@@ -76,7 +76,7 @@ module Unified_IO
 
           begin
             
-            Net::SSH.start(server.hostname, server.user, :password => server.password, :timeout=>3) { |ssh|
+            Net::SSH.start(server.ip, server.user, :password => server.password, :timeout=>3) { |ssh|
 
               unless @server_validation[server.hostname] || ENV['SKIP_IP_CHECK']
                 right_ip = ssh.exec!('hostname').strip == server.hostname

@@ -11,6 +11,8 @@ describe ":ssh_exec" do
     ) 
   end
   
+  after { ENV.delete 'SKIP_IP_CHECK' }
+  
   it "raises Wrong_IP when hostnames do not match" do
     lambda {
       self.server = @wrong_ip
@@ -50,6 +52,18 @@ describe ":ssh_exec" do
   
   it 'returns a SSH::Results with an array of data' do
     ssh_exec("whoami").data.should.be == [`whoami`.strip]
+  end
+  
+  it 'uses :ip, not :hostname' do
+    ENV['SKIP_IP_CHECK'] = 'true'
+    
+    self.server = Unified_IO::Remote::Server.new(
+      :hostname=> 'InVaLiD',
+      :ip => `hostname`.strip,
+      :group=>'Apps',
+      :user=>`whoami`.strip
+    ) 
+    ssh_exec('hostname').data.first.should.be == `hostname`.strip
   end
 
 end # === describe :ssh_exec
