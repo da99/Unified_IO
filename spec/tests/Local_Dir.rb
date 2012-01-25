@@ -32,14 +32,12 @@ end # === describe Local::Dir.new
 
 describe 'Local::Dir :exists!' do
   
-  it 'must raise an error if it does not exist' do
+  it 'raises Not_Found if it does not exist' do
     m = lambda {
-      Unified_IO::Local::Dir.new("/xbox").exists!
-    }.should.raise(Checked::Demand::Failed)
+      Unified_IO::Local::Dir.new("/vbox").exists!
+    }.should.raise(Unified_IO::Local::Dir::Not_Found)
     .message
-    m.should.match %r!Local dir, !
-    m.should.match %r!/xbox!
-    m.should.match %r!exists\?!
+    m.should.match %r!Local dir, "?/vbox"?, must exist!
   end
 
 end # === describe dir!

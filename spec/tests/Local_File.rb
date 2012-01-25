@@ -5,12 +5,12 @@ describe "Local::File.new" do
     Unified_IO::Local::File.new('~/.bashrc').local?.should.be == true
   end
 
-  it 'must raise error if address is a directory' do
+  it 'must raise Not_A_File if address is a directory' do
     addr = File.expand_path '~/'
     lambda { Unified_IO::Local::File.new('~/') }
-    .should.raise(Checked::Demand::Failed)
+    .should.raise(Unified_IO::Local::File::Not_A_File)
     .message
-    .should.match %r!Local file, "#{addr}", can't.+directory.!
+    .should.match %r!Local file, "?#{addr}"?, can't.+directory.!
   end
   
   it 'must expand the path' do
@@ -18,7 +18,7 @@ describe "Local::File.new" do
     .should.be == File.expand_path('~/.bashrc')
   end
   
-  it 'raises error if path has control chars' do
+  it 'raises Checked::Demand::Failed if path has control chars' do
     lambda { 
       d = Unified_IO::Local::File.new("~/\t.bashrc")
     }.should.raise(Checked::Demand::Failed)
@@ -29,14 +29,12 @@ end # === describe Local::File.new
 
 describe "Local::File :exist!" do
   
-  it 'must raise an error if file! does not exist' do
+  it 'must raise Not_Found if file! does not exist' do
     m = lambda { 
       Unified_IO::Local::File.new("/xfile").exists!
-    }.should.raise(Checked::Demand::Failed)
+    }.should.raise(Unified_IO::Local::File::Not_Found)
     .message
-    m.should.match %r!Local file, !
-    m.should.match %r!/xfile!
-    m.should.match %r!exists\?!
+    m.should.match %r!Local file, "?/xfile"?, must exist.!
   end
   
 
@@ -59,14 +57,14 @@ end # === describe
 
 describe "Local::File :create a new file." do
 
-  it "must raise error if file exists." do
+  it "must raise Overwrite_Error if file exists." do
     old = BOX.create_random_file
     lambda {
       Unified_IO::Local::File.new(old).create "some content"
     }
-    .should.raise(Checked::Demand::Failed)
+    .should.raise(Unified_IO::Local::File::Overwrite_Error)
     .message
-    .should.match %r!Local file, .?#{old}.?,.+, must not be: exists\?!
+    .should.match %r!Local file, .?#{old}.?, already exists!
       
   end
   

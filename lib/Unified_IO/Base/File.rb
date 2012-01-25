@@ -25,7 +25,7 @@ module Unified_IO
           return false
         end
 
-        not_exists!
+        raise self.class::Overwrite_Error, "#{english_name}, already exists." if exists?
         yield String!(neo).file_content!
       end
       

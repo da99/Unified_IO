@@ -34,7 +34,7 @@ module Unified_IO
       end
 
       def exists!
-        Var!( english_name, self ).be! :exists?
+        raise self.class::Not_Found, "#{english_name}, must exist." unless exists?
         true
       end
 

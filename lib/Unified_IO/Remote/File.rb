@@ -5,6 +5,11 @@ module Unified_IO
   module Remote
 
     class File
+      
+      Invalid_Address = Class.new(RuntimeError)
+      Overwrite_Error = Class.new(RuntimeError)
+      Not_Found       = Class.new(RuntimeError)
+      Not_A_File      = Class.new(RuntimeError)
 
       module Base
 

@@ -7,6 +7,11 @@ module Unified_IO
 
     class File
       
+      Invalid_Address = Class.new(RuntimeError)
+      Overwrite_Error = Class.new(RuntimeError)
+      Not_Found       = Class.new(RuntimeError)
+      Not_A_File      = Class.new(RuntimeError)
+
       module Class_Methods
 
         include Checked::DSL::Racked
@@ -33,7 +38,9 @@ module Unified_IO
 
         def initialize addr
           super(::File.expand_path(addr))
-          File_Path!( "Local file", address ).not_dir!
+          if ::File.directory?(address)
+            raise Not_A_File, "#{english_name}, can't be a directory." 
+          end
         end
 
         def english_name

@@ -6,6 +6,8 @@ module Unified_IO
     
     class Dir
 
+      Not_Found = Class.new(RuntimeError)
+
       module Base
 
         include ::Unified_IO::Base::File_System_Object

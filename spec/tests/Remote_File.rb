@@ -16,18 +16,16 @@ describe "Remote::File :exist!" do
   
   behaves_like 'SSH to local'
 
-  it 'must raise an error if file! does not exist' do
+  it 'must raise Not_Found if file! does not exist' do
     
     m = lambda { 
      f = Unified_IO::Remote::File.new("/xfile")
      f.server = @localhost
      f.exists!
-    }.should.raise(Checked::Demand::Failed)
+    }.should.raise(Unified_IO::Remote::File::Not_Found)
     .message
     
-    m.should.match %r!Remote file, !
-    m.should.match %r!/xfile!
-    m.should.match %r!exists\?!
+    m.should.match %r!Remote file, "?/xfile"?, must exist!
   end
 
 end # === describe file!
