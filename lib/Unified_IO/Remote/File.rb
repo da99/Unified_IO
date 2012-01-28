@@ -26,11 +26,8 @@ module Unified_IO
         end
 
         def exists?
-          begin
-            ssh_run( %~ [[ -f #{address} ]] && echo 'ok' ~ ) == 'ok'
-          rescue ::Unified_IO::Remote::SSH::Failed
-            false
-          end
+          r = ignore_exits(%~ [[ -f #{address} ]] && echo 'ok' ~, 1=> lambda { |e| e.result.empty? }) 
+          r.data == ['ok']
         end
 
         def create raw

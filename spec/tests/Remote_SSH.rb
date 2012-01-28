@@ -65,6 +65,21 @@ describe ":ssh_exec" do
     ) 
     ssh_exec('hostname').data.first.should.be == `hostname`.strip
   end
+  
+  it 'raises Exit_Error if status is 0, but :errors is not empty' do
+    `bundle exec ruby spec/files/errors_with_exit_0.rb 2>&1`.strip
+    .should == "err msg 1\nerr msg 2\nExit: 0"
+  end
+
+  it 'raises Exit_Error if status does not equal 0' do
+    `bundle exec ruby spec/files/exit_with_2.rb 2>&1`.strip
+    .should == "Exiting\n2"
+  end
+
+  it 'uses a PTY' do
+    `bundle exec ruby spec/files/run_pty.rb 2>&1`.strip
+    .should.match %r!Your answer: \^C!
+  end
 
 end # === describe :ssh_exec
 

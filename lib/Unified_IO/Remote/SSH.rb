@@ -1,5 +1,6 @@
 require 'net/ssh'
 require 'net/scp'
+require 'readline'
 
 module Unified_IO
 
@@ -8,7 +9,6 @@ module Unified_IO
     class SSH
 
       Not_Connected = Class.new(RuntimeError)
-      Failed        = Class.new(RuntimeError)
       Wrong_IP      = Class.new(RuntimeError)
       Retry_Command = Class.new(RuntimeError)
 
@@ -17,7 +17,9 @@ module Unified_IO
 
         def initialize result
           self.result = result
-          super("Exit: #{result.exit_status}, " + result.errors.join(''))
+          msg = (result.errors.empty? ? result.data : result.errors).join('')
+          msg = '[No data.]' if msg == ''
+          super("Exit: #{result.exit_status}, #{msg}" )
         end
 
       end # === class Exit_Error
@@ -29,6 +31,14 @@ module Unified_IO
           @data = []
           @errors = []
           @exit_status = nil
+        end
+        
+        def empty?
+          data.empty? && errors.empty?
+        end
+
+        def any_data?
+          !empty?
         end
 
       end # === class Results
@@ -55,10 +65,10 @@ module Unified_IO
             ssh_exec cmd
           rescue Exit_Error => e
             ignore = hsh.detect { |k,v|
-              k == e.result.exit_status && e.message[v]
+              k == e.result.exit_status && (v.respond_to?(:call) ? v.call(e) : e.message[v] )
             }
-            raise e unless ignore
             
+            raise e unless ignore
             e.result
           end
         end
@@ -85,39 +95,66 @@ module Unified_IO
               end
 
               # capture only stdout matching a particular pattern
-              ssh.exec!(cmd) do |channel, stream, data|
-                
-                channel.on_request 'exit-status' do |ch, d|
+              ssh.open_channel do |ch1|
+
+                ch1.on_extended_data do |ch, type, d|
+                  stderr << d
+                end
+
+                ch1.on_request 'exit-status' do |ch, d|
                   result.exit_status = d.read_long
                 end
                 
-                d = data.strip
-                if stream == :stdout
-                  stdout << d
-                else
-                  stderr << d
-                end
-              end
-            }
+                ch1.on_data do |ch, data|
+                  stdout << data.strip
 
-            raise Unified_IO::Remote::SSH::Exit_Error, result unless stderr.empty?
+                  if data[/(\.|\$|:|\]|\?) \Z/]
+                    begin
+                      print data
+                      STDOUT.flush
+                      a = Readline.readline("\nYour answer: ", true).strip
+                      raise Interrupt, "From user." if a == 'Q'
+                      ch.send_data( "#{a}\n" )
+                    rescue Interrupt => e # Send CTRL-C:
+                      print "^C\n"
+                      i = ( Net::SSH::Buffer.from(:byte, 3, :raw, "\\n").to_s )
+                      ch.send_data( i )
+                      stderr << 'User requested interrupt.'
+                      # channel.close
+                    end
+                  end
+                end
+                
+                ch1.request_pty do |ch, success|
+                  if success
+                  else
+                    ch.close
+                    (stderr << "Unknown error requesting pty.") 
+                  end
+                end
+                  
+                ch1.exec(cmd)
+                
+              end.wait
+            } # === Net::SSH.start
             
-          rescue Timeout::Error => e
+          rescue Timeout::Error  => e
             raise e.class, server.inspect
-            
+
           rescue Net::SSH::AuthenticationFailed => e
             shell.yell( "Using: " + [server.ip, server.login].inspect )
             raise e
-            
+
           rescue Net::SSH::HostKeyMismatch => e
             if e.message[%r!fingerprint .+ does not match for!]
               shell.yell "Try this", "ssh-keygen -f \"~/.ssh/known_hosts\" -R #{server[:ip]}"
               raise Retry_Command, "Removed the RSA key."
             end
-            
+
             raise e
-            
           end
+          
+          raise Unified_IO::Remote::SSH::Exit_Error, result if !result.errors.empty? || result.exit_status != 0
           
           result
         end
