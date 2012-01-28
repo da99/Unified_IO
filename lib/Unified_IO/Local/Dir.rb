@@ -24,10 +24,6 @@ module Unified_IO
           File_Path!( 'Local file', self.address ).not_file!
         end
 
-        def english_name
-          "Local dir, #{address}"
-        end
-
         def exists?
           ::Dir.exists?(address)
         end

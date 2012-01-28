@@ -19,9 +19,10 @@ module Unified_IO
 
       def english_name
         @english_name ||= begin
-                            name = self.class.name.downcase
-                            .split('::')
-                            .last
+                            name = self.class.name
+                            .sub('Unified_IO::', '')
+                            .downcase
+                            .gsub('::', ' ')
                             .capitalize
                             .gsub('_', ' ') 
                           "#{name}, #{address.inspect}"

@@ -16,10 +16,6 @@ module Unified_IO
         include ::Unified_IO::Base::File
         include ::Unified_IO::Remote::SSH::DSL
 
-        def english_name
-          "Remote file, #{address}"
-        end
-
         def content
           exists!
           ssh_run "cat #{address}"

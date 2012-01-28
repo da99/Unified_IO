@@ -43,10 +43,6 @@ module Unified_IO
           end
         end
 
-        def english_name
-          "Local file, #{address}"
-        end
-
         def content
           exists!
           Local::File.read address

@@ -14,14 +14,8 @@ module Unified_IO
         include ::Unified_IO::Remote::SSH::DSL
 
         def exists?
-          found = false
-          ssh_connection.exec!("cd #{dir}") { |channel, stream, data|
-            if stream == :stdout
-              found = true
-            end 
-          }
-
-          found
+          ignore_exits("[[ -d #{address} ]] && echo ok", 1=>lambda { |e| e.result.empty? })
+          .data == ['ok']
         end
 
       end # === module Base
