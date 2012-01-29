@@ -73,3 +73,59 @@ describe "Local::Dir :content_address" do
   end
   
 end # === describe Local::Dir :content_addres
+
+
+describe "Local::Dir :permissions" do
+  
+  behaves_like 'SSH to local'
+  
+  it 'must return permissions as an octal string' do
+    dir   = File.dirname(File.expand_path __FILE__)
+    Unified_IO::Local::Dir.new(dir).permissions
+    .should == `stat -c "%a" #{dir} `.strip
+  end
+
+  it 'must raise Not_Found if file does not exist' do
+    
+    m = lambda { 
+     Unified_IO::Local::Dir.new("/permi")
+     .permissions
+    }.should.raise(Unified_IO::Local::Dir::Not_Found)
+    .message
+    
+    m.should.match %r!Local dir, "?/permi"?, must exist!
+  end
+
+end # === Local::Dir :permissions
+
+describe "Local::Dir :human_perms" do
+  
+  behaves_like 'SSH to local'
+  
+  it 'must return permissions in human readable format' do
+    dir = File.dirname(File.expand_path __FILE__)
+    Unified_IO::Local::Dir.new(dir).human_perms
+    .should == `stat -c "%A" #{dir} `.strip
+  end
+
+  it 'must raise Not_Found if dir does not exist' do
+    
+    m = lambda { 
+     Unified_IO::Local::Dir.new("/human")
+     .human_perms
+    }.should.raise(Unified_IO::Local::Dir::Not_Found)
+    .message
+    
+    m.should.match %r!Local dir, "?/human"?, must exist!
+  end
+
+end # === Local::Dir :human_perms
+
+
+
+
+
+
+
+
+

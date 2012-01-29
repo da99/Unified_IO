@@ -17,6 +17,10 @@ module Unified_IO
           Shell
         end
 
+        def shell_run *args
+          Shell.new.run *args
+        end
+
       end # === module DSL
       
       module Class_Methods

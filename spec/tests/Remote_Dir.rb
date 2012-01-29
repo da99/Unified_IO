@@ -29,3 +29,51 @@ describe "Remote::Dir :exist!" do
   end
 
 end # === describe file!
+
+
+describe "Remote::Dir :permissions" do
+  
+  behaves_like 'SSH to local'
+  
+  it 'must return permissions as an octal string' do
+    dir   = File.dirname(File.expand_path __FILE__)
+    Unified_IO::Remote::Dir.new(dir, @localhost).permissions
+    .should == `stat -c "%a" #{dir} `.strip
+  end
+
+  it 'must raise Not_Found if dir does not exist' do
+    
+    m = lambda { 
+     Unified_IO::Remote::Dir.new("/permi", @localhost)
+     .permissions
+    }.should.raise(Unified_IO::Remote::Dir::Not_Found)
+    .message
+    
+    m.should.match %r!Remote dir, "?/permi"?, must exist!
+  end
+
+end # === Remote::Dir :permissions
+
+describe "Remote::Dir :human_perms" do
+  
+  behaves_like 'SSH to local'
+  
+  it 'must return permissions in human readable format' do
+    dir   = File.dirname(File.expand_path __FILE__)
+    Unified_IO::Remote::Dir.new(dir, @localhost).human_perms
+    .should == `stat -c "%A" #{dir} `.strip
+  end
+
+  it 'must raise Not_Found if dir does not exist' do
+    
+    m = lambda { 
+     Unified_IO::Remote::Dir.new("/human", @localhost)
+     .human_perms
+    }.should.raise(Unified_IO::Remote::Dir::Not_Found)
+    .message
+    
+    m.should.match %r!Remote dir, "?/human"?, must exist!
+  end
+
+end # === Remote::Dir :human_perms
+

@@ -82,6 +82,56 @@ describe "Local::File :create a new file." do
 
 end # === describe
 
+describe "Local::File :permissions" do
+  
+  behaves_like 'SSH to local'
+  
+  it 'must return permissions as an octal string' do
+    file   = File.expand_path __FILE__
+    Unified_IO::Local::File.new(file).permissions
+    .should == `stat -c "%a" #{file} `.strip
+  end
+
+  it 'must raise Not_Found if file does not exist' do
+    
+    m = lambda { 
+     Unified_IO::Local::File.new("/permi")
+     .permissions
+    }.should.raise(Unified_IO::Local::File::Not_Found)
+    .message
+    
+    m.should.match %r!Local file, "?/permi"?, must exist!
+  end
+
+end # === Local::File :permissions
+
+describe "Local::File :human_perms" do
+  
+  behaves_like 'SSH to local'
+  
+  it 'must return permissions in human readable format' do
+    file   = File.expand_path __FILE__
+    Unified_IO::Local::File.new(file).human_perms
+    .should == `stat -c "%A" #{file} `.strip
+  end
+
+  it 'must raise Not_Found if file does not exist' do
+    
+    m = lambda { 
+     Unified_IO::Local::File.new("/human")
+     .human_perms
+    }.should.raise(Unified_IO::Local::File::Not_Found)
+    .message
+    
+    m.should.match %r!Local file, "?/human"?, must exist!
+  end
+
+end # === Local::File :human_perms
+
+
+
+
+
 
 
 

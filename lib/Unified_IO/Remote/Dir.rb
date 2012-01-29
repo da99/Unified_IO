@@ -11,7 +11,17 @@ module Unified_IO
       module Base
 
         include ::Unified_IO::Base::File_System_Object
+        include ::Unified_IO::Base::Remote_FS_Object
         include ::Unified_IO::Remote::SSH::DSL
+
+        def initialize path, server = nil
+          super(path)
+          self.server = server if server
+        end
+
+        def expand_path
+          exists_or_raise { ssh_run("cd #{address} && pwd") }
+        end
 
         def exists?
           ignore_exits("[[ -d #{address} ]] && echo ok", 1=>lambda { |e| e.result.empty? })

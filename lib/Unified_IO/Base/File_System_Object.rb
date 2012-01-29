@@ -14,7 +14,6 @@ module Unified_IO
 
       def initialize addr
         self.address = File_Path!(addr)
-        (self.address = expand_path) if local?
       end
 
       def english_name
@@ -41,11 +40,7 @@ module Unified_IO
 
 
       def expand_path
-        if local?
-          ::File.expand_path address
-        else
-          ::File.join(ssh_run('pwd'), address)
-        end
+        ::File.expand_path address
       end
       
       def remote?
@@ -63,6 +58,34 @@ module Unified_IO
                           raise "Could not figure out location type: #{klass_name}"
                         end
                       end
+      end
+
+      def human_perms
+        exists_or_raise { 
+          run "stat -c %A #{address}" 
+        }
+      end
+
+      def permissions
+        exists_or_raise { 
+          run "stat -c %a #{address}" 
+        }
+      end
+
+      def run *args
+        raise ArgumentError, "No block allowed." if block_given?
+        local? ? shell_run(*args) : ssh_run(*args)
+      end
+
+      private # ============================================
+
+      def exists_or_raise
+        begin
+          yield
+        rescue Unified_IO::Local::Shell::Failed => e
+          exists!
+          raise e
+        end
       end
 
     end # === module File_System_Object
