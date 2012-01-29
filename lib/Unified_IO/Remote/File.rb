@@ -16,6 +16,11 @@ module Unified_IO
         include ::Unified_IO::Base::File
         include ::Unified_IO::Remote::SSH::DSL
 
+        def initialize path, server = nil
+          super(path)
+          self.server= server
+        end
+
         def content
           exists!
           ssh_run "cat #{address}"
@@ -37,6 +42,25 @@ module Unified_IO
 
             results
           }
+        end
+        
+        def human_perms
+          exists_or_raise { ssh_run "stat -c %A #{address}" }
+        end
+        
+        def permissions
+          exists_or_raise { ssh_run "stat -c %a #{address}" }
+        end
+        
+        private # ============================================
+
+        def exists_or_raise
+          begin
+            yield
+          rescue Unified_IO::Remote::SSH::Exit_Error => e
+            exists!
+            raise e
+          end
         end
 
       end # === module Base
