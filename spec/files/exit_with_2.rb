@@ -8,6 +8,7 @@ end
 if ARGV == ['SSH']
 
   require 'Unified_IO'
+  Unified_IO::Local::Shell.quiet
   
   class Box
 
@@ -30,7 +31,8 @@ if ARGV == ['SSH']
   begin
     result = Box.new.run
   rescue Unified_IO::Remote::SSH::Exit_Error => e
-    puts *(e.result.data + e.result.errors)
+    puts *(e.result.data)
+    puts *(e.result.errors)
     puts e.result.exit_status.to_s
   end
   

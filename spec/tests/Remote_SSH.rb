@@ -73,12 +73,13 @@ describe ":ssh_exec" do
 
   it 'raises Exit_Error if status does not equal 0' do
     `bundle exec ruby spec/files/exit_with_2.rb 2>&1`.strip
-    .should == "Exiting\n2"
+    .should == "Exiting\n\n2"
   end
 
   it 'uses a PTY' do
     `bundle exec ruby spec/files/run_pty.rb 2>&1`.strip
-    .should.match %r!Your answer: \^C!
+    .should == %~[sudo] password for da01: a
+Sorry, try again.~
   end
 
 end # === describe :ssh_exec

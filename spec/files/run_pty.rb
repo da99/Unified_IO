@@ -1,8 +1,10 @@
 require 'open3'
 
+
 if ARGV == ['PTY']
 
   require 'Unified_IO'
+  Unified_IO::Local::Shell.loud
   
   class Box
 
@@ -23,23 +25,15 @@ if ARGV == ['PTY']
   end # === class Box
   
   result = Box.new.run
+  exit
 end
 
+
 Open3.popen3("bundle exec ruby spec/files/run_pty.rb PTY") do |i, o, e, w|
-  
-  last = ''
-  while d = o.gets(' ')
-    print d
-    
-    if "#{last}#{d}".strip == 'Your answer:'
-      Process.kill "INT", w[:pid]
-    end
-    
-    last = d
-  end
-  
-  while d = e.gets(' ')
-    print d
-  end
-  
+
+  sleep 2
+  i.puts 'a'
+  puts o.gets
+  puts o.gets
+  Process.kill 'INT', w[:pid]
 end

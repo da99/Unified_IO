@@ -17,8 +17,13 @@ module Unified_IO
 
         def initialize result
           self.result = result
-          msg = (result.errors.empty? ? result.data : result.errors).join('')
-          msg = '[No data.]' if msg == ''
+          msg = if result.errors.empty? && result.data.empty?
+                  '[No data.]'
+                elsif result.errors.empty?
+                  result.data.last.split("\n").last.strip
+                else
+                  result.errors.join("\n").split("\n").map(&:strip).join(', ')
+                end
           super("Exit: #{result.exit_status}, #{msg}" )
         end
 
@@ -79,14 +84,45 @@ module Unified_IO
           r.data.join("\n")
         end
 
-        def ssh_exec cmd
+        # 
+        # Thread technique came from: 
+        # http://stackoverflow.com/questions/6942279/ruby-net-ssh-channel-dies
+        # 
+        def ssh_exec command
           result = Results.new
           @server_validation ||= {}
           stdout = result.data
           stderr = result.errors
+          t      = nil
 
           begin
             
+            get_input = true
+            @channel  = nil
+            cmd       = ''
+            data      = ''
+
+            t = Thread.new { 
+
+              while get_input
+                
+                cmd = begin
+                        Readline.readline("", true).strip
+                      rescue Interrupt => e # Send CTRL-C:
+                        get_input = false
+                        "^C"
+                      end
+                
+                if @channel
+                  @channel.process
+                else
+                  print "Previous channel closed. Ignoring command: #{cmd}\n"
+                end
+                
+              end 
+
+            }
+
             Net::SSH.start(server.ip, server.user, :password => server.password, :timeout=>3) { |ssh|
 
               unless @server_validation[server.hostname] || ENV['SKIP_IP_CHECK']
@@ -95,8 +131,7 @@ module Unified_IO
                 @server_validation[server.hostname] = right_ip
               end
 
-              # capture only stdout matching a particular pattern
-              ssh.open_channel do |ch1|
+              @channel = ssh.open_channel do |ch1|
 
                 ch1.on_extended_data do |ch, type, d|
                   stderr << d
@@ -106,37 +141,47 @@ module Unified_IO
                   result.exit_status = d.read_long
                 end
                 
-                ch1.on_data do |ch, data|
-                  stdout << data.strip
-
-                  if data[/(\.|\$|:|\]|\?) \Z/]
-                    begin
-                      print data
-                      STDOUT.flush
-                      a = Readline.readline("\nYour answer: ", true).strip
-                      raise Interrupt, "From user." if a == 'Q'
-                      ch.send_data( "#{a}\n" )
-                    rescue Interrupt => e # Send CTRL-C:
-                      print "^C\n"
-                      i = ( Net::SSH::Buffer.from(:byte, 3, :raw, "\\n").to_s )
-                      ch.send_data( i )
-                      stderr << 'User requested interrupt.'
-                      # channel.close
-                    end
+                ch1.on_open_failed { |ch, code, desc|
+                  stderr << "Failure to open channel: #{code.inspect}: #{desc}"
+                }
+                
+                ch1.on_process do |ch|
+                  if cmd.strip == '^C'
+                    #ch.close
+                    ch.send_data( Net::SSH::Buffer.from(:byte, 3, :raw, "\n").to_s )
+                    stderr << 'User requested interrupt.'
+                  else
+                    ch.send_data( "#{cmd}\n" ) unless cmd.empty?
+                    cmd = ''
                   end
+                end
+
+                ch1.on_data do |ch, d|
+                  stdout << (data << d.strip)
+                  
+                  if !Unified_IO::Local::Shell.quiet? && !data.empty?
+                    print d
+                    STDOUT.flush
+                  end
+                  
+                  data = ''
+                  
                 end
                 
                 ch1.request_pty do |ch, success|
                   if success
+                    # do nothing
                   else
                     ch.close
                     (stderr << "Unknown error requesting pty.") 
                   end
                 end
                   
-                ch1.exec(cmd)
+                ch1.exec(command)
                 
-              end.wait
+              end
+
+              ssh.loop 0.1
             } # === Net::SSH.start
             
           rescue Timeout::Error  => e
@@ -153,6 +198,9 @@ module Unified_IO
             end
 
             raise e
+          ensure
+            get_input = false
+            t.exit if t
           end
           
           raise Unified_IO::Remote::SSH::Exit_Error, result if !result.errors.empty? || result.exit_status != 0

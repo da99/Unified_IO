@@ -59,13 +59,24 @@ module Unified_IO
                         end
                       end
       end
-
       def human_perms
         exists_or_raise { 
           run "stat -c %A #{address}" 
         }
       end
 
+
+      # 
+      # Quick lesson on getting permissions:
+      #
+      #   puts sprintf("#{path} %o", File.stat(path).mode )
+      #   puts sprintf("#{path} %o", File.stat(path).mode & 0777 )
+      #   
+      #   require 'net/sftp'
+      #   Net::SFTP.start('HOSTNAME', 'user', :password => nil) do |sftp|
+      #     puts sprintf("%o", sftp.lstat!(path).permissions )
+      #   end
+      #   
       def permissions
         exists_or_raise { 
           run "stat -c %a #{address}" 
