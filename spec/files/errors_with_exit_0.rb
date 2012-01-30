@@ -42,7 +42,7 @@ if ARGV == ['SSH']
     e.result
   end
   
-  puts *(result.errors)
+  puts *(result.error)
   puts "Exit: #{result.exit_status}"
     
   exit 0

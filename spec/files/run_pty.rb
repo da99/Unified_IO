@@ -35,5 +35,6 @@ Open3.popen3("bundle exec ruby spec/files/run_pty.rb PTY") do |i, o, e, w|
   i.puts 'a'
   puts o.gets
   puts o.gets
+  puts o.gets
   Process.kill 'INT', w[:pid]
 end

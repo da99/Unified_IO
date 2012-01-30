@@ -17,12 +17,12 @@ module Unified_IO
 
         def initialize result
           self.result = result
-          msg = if result.errors.empty? && result.data.empty?
+          msg = if result.error.empty? && result.data.empty?
                   '[No data.]'
-                elsif result.errors.empty?
-                  result.data.last.split("\n").last.strip
+                elsif result.error.empty?
+                  result.data.gsub(%r!\r?\n!, " -- ")
                 else
-                  result.errors.join("\n").split("\n").map(&:strip).join(', ')
+                  result.error.gsub(%r!\r?\n!, " -- ")
                 end
           super("Exit: #{result.exit_status}, #{msg}" )
         end
@@ -30,16 +30,24 @@ module Unified_IO
       end # === class Exit_Error
 
       class Results
-        attr_accessor :exit_status, :data, :errors
+        attr_accessor :exit_status, :data, :error
 
         def initialize 
-          @data = []
-          @errors = []
+          @data = ''
+          @error = ''
           @exit_status = nil
         end
         
+        def data_lines
+          @data.gsub("\r",'').split("\n")
+        end
+
+        def error_lines
+          @error.gsub("\r", '').split("\n")
+        end
+
         def empty?
-          data.empty? && errors.empty?
+          data.empty? && error.empty?
         end
 
         def any_data?
@@ -81,7 +89,7 @@ module Unified_IO
 
         def ssh_run cmd
           r = ssh_exec(cmd)
-          r.data.join("\n")
+          r.data
         end
 
         # 
@@ -92,7 +100,7 @@ module Unified_IO
           result = Results.new
           @server_validation ||= {}
           stdout = result.data
-          stderr = result.errors
+          stderr = result.error
           t      = nil
 
           begin
@@ -149,7 +157,7 @@ module Unified_IO
                   if cmd.strip == '^C'
                     #ch.close
                     ch.send_data( Net::SSH::Buffer.from(:byte, 3, :raw, "\n").to_s )
-                    stderr << 'User requested interrupt.'
+                    stderr << "User requested interrupt."
                   else
                     ch.send_data( "#{cmd}\n" ) unless cmd.empty?
                     cmd = ''
@@ -157,9 +165,10 @@ module Unified_IO
                 end
 
                 ch1.on_data do |ch, d|
-                  stdout << (data << d.strip)
+                  data = d
+                  stdout << d.sub(%r!\r?\n\Z!,'')
                   
-                  if !Unified_IO::Local::Shell.quiet? && !data.empty?
+                  if !Unified_IO::Local::Shell.quiet? && !d.empty?
                     print d
                     STDOUT.flush
                   end
@@ -203,8 +212,9 @@ module Unified_IO
             t.exit if t
           end
           
-          raise Unified_IO::Remote::SSH::Exit_Error, result if !result.errors.empty? || result.exit_status != 0
+          raise Unified_IO::Remote::SSH::Exit_Error, result if !result.error.empty? || result.exit_status != 0
           
+          result.data.strip!
           result
         end
         

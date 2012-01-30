@@ -25,7 +25,7 @@ module Unified_IO
 
         def exists?
           ignore_exits("[[ -d #{address} ]] && echo ok", 1=>lambda { |e| e.result.empty? })
-          .data == ['ok']
+          .data == 'ok'
         end
 
       end # === module Base

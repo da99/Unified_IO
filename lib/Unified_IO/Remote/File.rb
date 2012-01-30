@@ -28,7 +28,7 @@ module Unified_IO
 
         def exists?
           r = ignore_exits(%~ [[ -f #{address} ]] && echo 'ok' ~, 1=> lambda { |e| e.result.empty? }) 
-          r.data == ['ok']
+          r.data == 'ok'
         end
 
         def create raw

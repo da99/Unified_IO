@@ -69,12 +69,12 @@ module Unified_IO
       # 
       # Quick lesson on getting permissions:
       #
-      #   puts sprintf("#{path} %o", File.stat(path).mode )
-      #   puts sprintf("#{path} %o", File.stat(path).mode & 0777 )
+      #   print sprintf("#{path} %o", File.stat(path).mode )
+      #   print sprintf("#{path} %o", File.stat(path).mode & 0777 )
       #   
       #   require 'net/sftp'
       #   Net::SFTP.start('HOSTNAME', 'user', :password => nil) do |sftp|
-      #     puts sprintf("%o", sftp.lstat!(path).permissions )
+      #     print sprintf("%o", sftp.lstat!(path).permissions )
       #   end
       #   
       def permissions

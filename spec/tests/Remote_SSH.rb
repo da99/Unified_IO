@@ -47,11 +47,11 @@ describe ":ssh_exec" do
   
   it "strips returned data" do
     target = `uptime`.strip.gsub(%r!\d+!, '[0-9]{1,2}')
-    ssh_exec("uptime").data.join.should.match %r!#{target}!
+    ssh_exec("uptime").data.should.match %r!#{target}!
   end
   
   it 'returns a SSH::Results with an array of data' do
-    ssh_exec("whoami").data.should.be == [`whoami`.strip]
+    ssh_exec("whoami").data.should.be == `whoami`.strip
   end
   
   it 'uses :ip, not :hostname' do
@@ -63,10 +63,10 @@ describe ":ssh_exec" do
       :group=>'Apps',
       :user=>`whoami`.strip
     ) 
-    ssh_exec('hostname').data.first.should.be == `hostname`.strip
+    ssh_exec('hostname').data.should.be == `hostname`.strip
   end
   
-  it 'raises Exit_Error if status is 0, but :errors is not empty' do
+  it 'raises Exit_Error if status is 0, but :error is not empty' do
     `bundle exec ruby spec/files/errors_with_exit_0.rb 2>&1`.strip
     .should == "err msg 1\nerr msg 2\nExit: 0"
   end
@@ -78,8 +78,7 @@ describe ":ssh_exec" do
 
   it 'uses a PTY' do
     `bundle exec ruby spec/files/run_pty.rb 2>&1`.strip
-    .should == %~[sudo] password for da01: a
-Sorry, try again.~
+    .should == %~[sudo] password for da01: a\n\r\nSorry, try again.~
   end
 
 end # === describe :ssh_exec
