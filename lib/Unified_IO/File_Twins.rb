@@ -19,8 +19,8 @@ module Unified_IO
         @remote  = Remote::File.new(remote_addr)
       end
 
-      def server= s
-        remote.server= s
+      def server s
+        remote.server s
         super
       end
 

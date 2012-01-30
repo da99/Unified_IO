@@ -22,13 +22,13 @@ describe "File_Twins :new" do
 
   it 'inits a local file' do
     twins = @twins.new('/tmp/down', '/tmp/up')
-    twins.server = @localhost
+    twins.server @localhost
     twins.local.class.should.be == Unified_IO::Local::File
   end
   
   it 'inits a remote file' do
     twins = @twins.new('/tmp/down', '/tmp/up')
-    twins.server = @localhost
+    twins.server @localhost
     twins.remote.class.should.be == Unified_IO::Remote::File
   end
   
@@ -43,7 +43,7 @@ describe "File_Twins :upload" do
     local = BOX.create_file("Twins/Local/local.txt", 'Local content')
     remote = BOX.path('Twins/Remote/uploaded.txt')
     twin = @twins.new(local, remote)
-    twin.server = @localhost
+    twin.server @localhost
     twin.upload
     File.read(remote).should.be == "Local content"
   end
@@ -61,7 +61,7 @@ describe "File_Twins :download" do
     local = BOX.path("Twins/Local/downloaded.txt")
     remote = BOX.create_file "Twins/Remote/remote.txt", 'Remote content'
     twin = @twins.new(local, remote)
-    twin.server = @localhost
+    twin.server @localhost
     twin.download
     File.read(local).should.be == 'Remote content'
   end

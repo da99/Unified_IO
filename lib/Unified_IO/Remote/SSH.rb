@@ -45,7 +45,8 @@ module Unified_IO
 
       module DSL
 
-        attr_accessor :server
+        include Get_Set::DSL
+        attr_get_set :server
 
         def scp_upload l, r
           Net::SCP.upload!(server.hostname, server.user, l, r, :password => server.password)

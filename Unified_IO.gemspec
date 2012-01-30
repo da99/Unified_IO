@@ -33,4 +33,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'net-scp'
   s.add_runtime_dependency 'term-ansicolor'
   s.add_runtime_dependency 'Checked', '>= 3.0.0'
+  s.add_runtime_dependency 'Get_Set'
 end

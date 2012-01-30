@@ -20,7 +20,7 @@ describe "Remote::Dir :exist!" do
     
     m = lambda { 
      f = Unified_IO::Remote::Dir.new("/VIDEOS")
-     f.server = @localhost
+     f.server @localhost
      f.exists!
     }.should.raise(Unified_IO::Remote::Dir::Not_Found)
     .message

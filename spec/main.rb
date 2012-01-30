@@ -115,7 +115,7 @@ shared 'SSH to local' do
       :group => 'None',
       :user=>`whoami`.strip
     ) 
-    self.server = @localhost
+    server  @localhost
   end
       
 end

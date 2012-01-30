@@ -9,7 +9,7 @@ if ARGV == ['PTY']
     include Unified_IO::Remote::SSH::DSL
 
     def initialize
-      self.server = Unified_IO::Remote::Server.new(
+      server Unified_IO::Remote::Server.new(
         :hostname=>`hostname`.strip,
         :group => 'Local',
         :user  => `whoami`.strip

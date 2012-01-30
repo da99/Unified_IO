@@ -15,7 +15,7 @@ describe ":ssh_exec" do
   
   it "raises Wrong_IP when hostnames do not match" do
     lambda {
-      self.server = @wrong_ip
+      server @wrong_ip
       ssh_exec 'uptime'
     }.should.raise(Unified_IO::Remote::SSH::Wrong_IP)
     .message.match %r!Hostname: localhost, Target: !
@@ -25,7 +25,7 @@ describe ":ssh_exec" do
     begin
       lambda {
         ENV['SKIP_IP_CHECK'] = 'true'
-        self.server = @wrong_ip
+        server @wrong_ip
         ssh_exec 'hostname'
       }.should.not.raise(Unified_IO::Remote::SSH::Wrong_IP)
     ensure
@@ -57,7 +57,7 @@ describe ":ssh_exec" do
   it 'uses :ip, not :hostname' do
     ENV['SKIP_IP_CHECK'] = 'true'
     
-    self.server = Unified_IO::Remote::Server.new(
+    server Unified_IO::Remote::Server.new(
       :hostname=> 'InVaLiD',
       :ip => `hostname`.strip,
       :group=>'Apps',

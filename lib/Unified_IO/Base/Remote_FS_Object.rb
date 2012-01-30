@@ -5,7 +5,7 @@ module Unified_IO
       
       def initialize path, server = nil
         super(path)
-        self.server = server if server
+        server(server) if server
       end
 
       def exists_or_raise

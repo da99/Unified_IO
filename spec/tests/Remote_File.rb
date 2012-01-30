@@ -20,7 +20,7 @@ describe "Remote::File :exist!" do
     
     m = lambda { 
      f = Unified_IO::Remote::File.new("/xfile")
-     f.server = @localhost
+     f.server @localhost
      f.exists!
     }.should.raise(Unified_IO::Remote::File::Not_Found)
     .message
