@@ -8,7 +8,6 @@ puts "same" if !!ssh.connection === ssh.connected?
 
 localhost = Unified_IO::Remote::Server.new(
   :hostname=> `hostname`.strip,
-  :group => 'None',
   :user=>File.basename(File.expand_path '~/')
 ) 
 

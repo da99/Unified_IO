@@ -17,7 +17,6 @@ if ARGV == ['SSH']
     def initialize
       server Unified_IO::Remote::Server.new(
         :hostname=>`hostname`.strip,
-        :group => 'Local',
         :user  => `whoami`.strip
       )
     end

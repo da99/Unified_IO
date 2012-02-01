@@ -3,7 +3,6 @@ Unified_IO::Local::Shell.quiet
 
 localhost = Unified_IO::Remote::Server.new(
   :hostname=>`hostname`.strip, 
-  :group => 'None',
   :user=>File.basename(File.expand_path '~/')
 ) 
 
@@ -12,7 +11,6 @@ Unified_IO::Remote::SSH.disconnect
 
 bdrm = Unified_IO::Remote::Server.new(
   :hostname=>`hostname`.strip, 
-  :group => 'None',
   :user=>File.basename(File.expand_path '~/')
 ) 
 

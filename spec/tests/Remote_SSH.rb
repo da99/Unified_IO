@@ -6,7 +6,6 @@ describe ":ssh_exec" do
   before do
     @wrong_ip = Unified_IO::Remote::Server.new(
       :hostname=> 'localhost',
-      :group=>'Apps',
       :user=>`whoami`.strip
     ) 
   end
@@ -60,7 +59,6 @@ describe ":ssh_exec" do
     server Unified_IO::Remote::Server.new(
       :hostname=> 'InVaLiD',
       :ip => `hostname`.strip,
-      :group=>'Apps',
       :user=>`whoami`.strip
     ) 
     ssh_exec('hostname').data.should.be == `hostname`.strip

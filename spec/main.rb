@@ -10,6 +10,19 @@ require "mocha-on-bacon"
 
 Unified_IO::Local::Shell.quiet
 
+def chdir 
+  Dir.chdir("spec/Boxes") { yield }
+end
+
+def mkdir dir
+  chdir {
+    `rm -r #{dir}` if File.directory?(dir)
+    `mkdir -p #{dir}`
+    yield
+    `rm -r #{dir}`
+  }
+end
+
 class Ghost_Box
 
   module DSL
@@ -112,7 +125,6 @@ shared 'SSH to local' do
     extend Unified_IO::Remote::SSH::DSL
     @localhost = Unified_IO::Remote::Server.new(
       :hostname=> `hostname`.strip,
-      :group => 'None',
       :user=>`whoami`.strip
     ) 
     server  @localhost
@@ -121,8 +133,12 @@ shared 'SSH to local' do
 end
 
 
+if ARGV.size > 1 && ARGV[1, ARGV.size - 1].detect { |a| File.exists?(a) }
+  # Do nothing. Bacon grabs the file.
+else
 
-Dir.glob('spec/tests/*.rb').each { |file|
-  require ::File.expand_path(file.sub('.rb', '')) if ::File.file?(file)
-}
+  Dir.glob('spec/tests/*.rb').each { |file|
+    require ::File.expand_path(file.sub('.rb', '')) if ::File.file?(file)
+  }
 
+end
