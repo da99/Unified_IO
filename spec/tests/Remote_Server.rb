@@ -21,11 +21,6 @@ describe "Server :new Hash[]" do
     .message.should.match %r!Nickname!i
   end
 
-  it 'sets :login to "root" if :root evalutes to true' do
-    Unified_IO::Remote::Server.new(:user=>'user', :hostname=>'hostname', :root=>true)
-    .login.should.be === 'root'
-  end
-  
   it 'sets a default port of 22' do
     Unified_IO::Remote::Server.new(:user=>'user', :hostname=>'hostname')
     .port.should.be == 22

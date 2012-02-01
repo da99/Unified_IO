@@ -11,10 +11,11 @@ module Unified_IO
       PROPS = [
         :ip, :port, :hostname, 
         :user, :default, 
-        :login, :root, :password
+        :login, :password,
+        :custom
       ]
 
-      attr_reader :origin, :custom, *PROPS
+      attr_reader :origin, *PROPS
       attr_accessor :os_name
 
       def initialize hash, opts = {}
@@ -34,11 +35,6 @@ module Unified_IO
           raise Invalid_Property, "#{key.inspect} already defined" if respond_to?(key)
           raise Missing_Property, "#{key.inspect}" unless hash.has_key?(key)
         }
-
-        if hash[:root]
-          hash[:login] = 'root'
-          hash.delete :root
-        end
 
         if ENV['PASSWORD']
           hash[:password] = ENV['PASSWORD']
