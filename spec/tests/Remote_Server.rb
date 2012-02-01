@@ -42,5 +42,38 @@ describe "Server :new Hash[]" do
     }.should.raise(ArgumentError)
     .message.should.match %r!o22!
   end
+  
+  it 'accepts a :custom field' do
+    target = [:group]
+    Unified_IO::Remote::Server.new({:user=>'me', :hostname=>'hostname', :group=>'group'}, :custom=>target)
+    .custom.should == target
+  end
+  
+  it 'defines, on meta class, methods from custom field' do
+    target = [:group]
+    Unified_IO::Remote::Server.new({:user=>'me', :hostname=>'hostname', :group => 'Apps'}, :custom=>target)
+    .group.should == 'Apps'
+  end
+  
+  it 'requires values from :custom field' do
+    lambda {
+      Unified_IO::Remote::Server.new({:user=>'me', :hostname=>'hostname'}, :custom=>[:group])
+    }.should.raise(Unified_IO::Remote::Server::Missing_Property)
+    .message.should.match %r!group!
+  end
+  
+  it 'raises Invalid_Property if :custom includes non-symbol keys' do
+    lambda {
+      Unified_IO::Remote::Server.new({:user=>'me', :hostname=>'hostname'}, :custom=>["group"])
+    }.should.raise(Unified_IO::Remote::Server::Invalid_Property)
+    .message.should.match %r!group!
+  end
+
+  it 'raises Invalid_Property if :custom inclues an already defined method name' do
+    lambda {
+      Unified_IO::Remote::Server.new({:user=>'me', :hostname=>'hostname', :inspect=>'yo'}, :custom=>[:inspect])
+    }.should.raise(Unified_IO::Remote::Server::Invalid_Property)
+    .message.should.match %r!:inspect already defined!
+  end
 
 end # === describe Server
