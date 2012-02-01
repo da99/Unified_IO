@@ -1,6 +1,13 @@
 
 describe "Server :new Hash[]" do
   
+  it 'requires a hash' do
+    lambda {
+      Unified_IO::Remote::Server.new('s1')
+    }.should.raise(ArgumentError)
+    .message.should.match %r!not a hash!
+  end
+
   it 'must require :hostname' do
     lambda {
       Unified_IO::Remote::Server.new(

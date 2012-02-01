@@ -19,7 +19,7 @@ module Unified_IO
       attr_accessor :os_name
 
       def initialize hash, opts = {}
-        raise ArgumentErro, "Argument not a hash: #{hash.inspect}" unless hash.is_a?(Hash)
+        raise ArgumentError, "Argument not a hash: #{hash.inspect}" unless hash.is_a?(Hash)
 
         @custom = opts[:custom] || []
         valid_keys = custom + PROPS
