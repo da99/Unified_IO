@@ -197,16 +197,15 @@ module Unified_IO
             raise e.class, server.inspect
 
           rescue Net::SSH::AuthenticationFailed => e
-            shell.yell( "Using: " + [server.ip, server.login].inspect )
-            raise e
+            raise e.class, "Using: " + [server.ip, server.login].inspect 
 
-          rescue Net::SSH::HostKeyMismatch => e
-            if e.message[%r!fingerprint .+ does not match for!]
-              shell.yell "Try this", "ssh-keygen -f \"~/.ssh/known_hosts\" -R #{server[:ip]}"
-              raise Retry_Command, "Removed the RSA key."
-            end
-
-            raise e
+          #rescue Net::SSH::HostKeyMismatch => e
+          #  if e.message[%r!fingerprint .+ does not match for!]
+          #    print "Try this", "ssh-keygen -f \"~/.ssh/known_hosts\" -R #{server[:ip]}\n"
+          #    raise Retry_Command, "Removed the RSA key."
+          #  end
+          #  
+          #  raise e
           ensure
             get_input = false
             t.exit if t

@@ -32,6 +32,15 @@ describe ":ssh_exec" do
     end
   end
   
+  it 'raises Net::SSH::AuthenticationFailed if login/password are incorrect' do
+    s = Unified_IO::Remote::Server.new(:hostname=>'localhost', :user=>'da')
+    e = lambda {
+      server s
+      ssh_exec "HOSTNAMES"
+    }.should.raise(Net::SSH::AuthenticationFailed)
+    .message.should.match %r!#{s.ip.inspect}, #{s.login.inspect}!
+  end
+
   it 'raises SSH::Exit_Error if return status is not zero' do
     e = lambda {
       ssh_exec "HOSTNAMES"
