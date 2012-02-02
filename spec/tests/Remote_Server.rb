@@ -64,6 +64,23 @@ describe "Server :new Hash[]" do
     .message.should.match %r!group!
   end
   
+  it 'sets default :user to value of :login' do
+    Unified_IO::Remote::Server.new(:login=>'you', :hostname=>'hostname')
+    .user.should == 'you'
+  end
+  
+  it 'sets default :login to value of :user' do
+    Unified_IO::Remote::Server.new(:user=>'me', :hostname=>'hostname')
+    .user.should == 'me'
+  end
+
+  it 'raises Missing_Property if :login and :user is not provided' do
+    lambda {
+      Unified_IO::Remote::Server.new({:hostname=>'hostname'})
+    }.should.raise(Unified_IO::Remote::Server::Missing_Property)
+    .message.should.match %r!login, :user!
+  end
+  
   it 'raises Invalid_Property if :custom includes non-symbol keys' do
     lambda {
       Unified_IO::Remote::Server.new({:user=>'me', :hostname=>'hostname'}, :custom=>["group"])

@@ -32,6 +32,10 @@ module Unified_IO
             raise Invalid_Property, ":password can't be set as empty string."
           end
 
+          if !hash[:login] && !hash[:user]
+            raise Missing_Property, "At least one must be included: :login, :user"
+          end
+
           custom.each { |key|
             raise Invalid_Property, "#{key.inspect}" unless key.is_a?(Symbol)
             raise Invalid_Property, "#{key.inspect} already defined" if respond_to?(key)
