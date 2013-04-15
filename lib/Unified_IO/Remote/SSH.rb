@@ -91,6 +91,7 @@ module Unified_IO
           r = ssh_exec(cmd)
           r.data
         end
+        alias_method :ssh, :ssh_run
 
         # 
         # Thread technique came from: 

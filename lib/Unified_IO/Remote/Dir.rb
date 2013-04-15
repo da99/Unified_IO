@@ -28,6 +28,18 @@ module Unified_IO
           .data == 'ok'
         end
 
+        def files
+          files = ssh("ls -Al #{address} | grep -v ^d").split("\n").map { |s| 
+            File.join( address, s.split.last )
+          }
+        end
+
+        def dirs
+          dirs = ssh("ls -Al #{address} | grep ^d").split("\n").map { |s| 
+            File.join( address, s.split.last )
+          }
+        end
+
       end # === module Base
 
       include Base
